@@ -5,6 +5,9 @@ import boundaries
 from place_cells import PlaceCells
 from trajectory_generator import TrajectoryGenerator
 
+from model import RNN
+from trainer import Trainer
+
 import os
 
 import argparse
@@ -33,6 +36,12 @@ parser.add_argument(
     default=save_path,
     help='directory to save trained models'
     )
+
+parser.add_argument(
+    '--model_name',
+    default='100_1000_trapezoid/',
+    help='name of model'
+)
 
 # device
 
@@ -96,7 +105,54 @@ parser.add_argument(
     help='number of trajectories per batch'
 )
 
+# grid cell 
+
+parser.add_argument(
+    '--Ng',
+    default=4096,
+    help='number of grid cells'
+)
+
+# model
+
+parser.add_argument(
+    '--RNN_type', 
+    default='RNN', 
+    help='RNN or LSTM'
+)
+
+parser.add_argument(
+    '--weight_decay', 
+    default=1e-4, 
+    help='strength of weight decay on recurrent weights'
+)
+
+parser.add_argument(
+    '--activation', 
+    default='relu', 
+    help='recurrent nonlinearity'
+)
+
+parser.add_argument(
+    '--learning_rate',
+    default=1e-4,
+    help='gradient descent learning rate'
+)
+
+parser.add_argument(
+    '--n_epochs',
+    default=100,
+    help='number of training epochs'
+)
+
+parser.add_argument(
+    '--n_steps',
+    default=1000,
+    help='batches per epoch'
+)
+
 options = parser.parse_args()
+os.mkdir( save_path + options.model_name )
 
 if __name__ == '__main__':
     
@@ -127,7 +183,7 @@ if __name__ == '__main__':
 
         plt.figure(figsize=(5,5))
         plt.scatter( us.cpu()[:,0], us.cpu()[:,1], c='lightgrey', label='Place cell centers' )
-        plt.savefig( options.save_path + 'place_cells.png' )
+        plt.savefig( options.save_path + options.model_name + 'place_cells.png' )
 
     else:
 
@@ -136,19 +192,43 @@ if __name__ == '__main__':
 
         ax.scatter( us.cpu()[:,0], us.cpu()[:,1], us.cpu()[:,2], c='lightgrey', label='Place cell centers' )
 
-        plt.savefig( options.save_path + 'place_cells.png' )
+        plt.savefig( options.save_path + options.model_name + 'place_cells.png' )
 
     # trajectory simmulation
 
     trajectory_generator = TrajectoryGenerator( options, place_cells, polygon )
-    inputs, pos, pc_outputs = trajectory_generator.get_test_batch()
-    pos = pos.cpu()
 
-    plt.figure(figsize=(5,5))
-    plt.scatter(us[:,0], us[:,1], c='lightgrey', label='Place cell centers')
-    for i in range( options.batch_size ):
-        plt.plot(pos[:,i,0],pos[:,i,1], label='Simulated trajectory', c='C1')
-        if i==0:
-            plt.legend()
+    test_trajectory = True
 
-    plt.savefig( options.save_path + 'trajectory.png' )
+    if test_trajectory:
+
+        inputs, pos, pc_outputs = trajectory_generator.get_test_batch()
+        pos = pos.cpu()
+
+        plt.figure(figsize=(5,5))
+        plt.scatter(us[:,0], us[:,1], c='lightgrey', label='Place cell centers')
+        for i in range( options.batch_size ):
+            plt.plot(pos[:,i,0],pos[:,i,1], label='Simulated trajectory', c='C1')
+            if i==0:
+                plt.legend()
+
+        plt.savefig( options.save_path + options.model_name + 'trajectory.png' )
+
+    # model
+    if options.RNN_type == 'RNN':
+
+        model = RNN( options, place_cells )
+        model = model.to( options.device )
+
+        print('\n')
+        print(f'model parameters: ')
+        print(model)
+        print('\n')
+
+    else:
+
+        pass
+
+    # training
+    trainer = Trainer( options, model, trajectory_generator, polygon )
+    trainer.train( n_epochs=options.n_epochs, n_steps=options.n_steps )

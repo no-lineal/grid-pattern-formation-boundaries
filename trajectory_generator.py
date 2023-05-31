@@ -206,3 +206,54 @@ class TrajectoryGenerator( object ):
         inputs = (v, init_actv)
 
         return (inputs, pos, place_outputs)
+    
+    def get_generator( self, batch_size=None ):
+
+        """
+        
+            return a generator that yields batches of trajectories
+        
+        """
+
+        if not batch_size:
+
+            batch_size = self.batch_size
+
+        n = 0
+        while True:
+
+            trajectory = self.generate_trajectory( batch_size )
+
+            # velocity
+            v = np.stack(
+                [
+                    trajectory['ego_v'] * np.cos(trajectory['target_hd']), 
+                    trajectory['ego_v'] * np.sin(trajectory['target_hd'])
+                ], 
+                axis=-1
+            )
+
+            v = torch.tensor(v, dtype=torch.float32).transpose(0, 1)
+
+            # position
+            pos = np.stack( [ trajectory['target_x'], trajectory['target_y'] ], axis=-1 )
+            pos = torch.tensor( pos, dtype=torch.float32 ).transpose(0, 1)
+            pos = pos.to( self.device )
+
+            # activation
+            place_outputs = self.place_cells.get_activation(pos)
+
+            # initial position
+            init_pos = np.stack( [ trajectory['init_x'], trajectory['init_y'] ] , axis=-1 )
+            init_pos = torch.tensor(init_pos, dtype=torch.float32)
+            init_pos = init_pos.to( self.device )
+
+            # initial activation
+            init_actv = self.place_cells.get_activation(init_pos).squeeze()
+
+            v = v.to( self.device )
+            inputs = (v, init_actv)
+
+            n += 1
+
+            yield (inputs, place_outputs, pos)
