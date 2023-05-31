@@ -206,9 +206,9 @@ if __name__ == '__main__':
         pos = pos.cpu()
 
         plt.figure(figsize=(5,5))
-        plt.scatter(us[:,0], us[:,1], c='lightgrey', label='Place cell centers')
+        plt.scatter(us.cpu()[:,0], us.cpu()[:,1], c='lightgrey', label='Place cell centers')
         for i in range( options.batch_size ):
-            plt.plot(pos[:,i,0],pos[:,i,1], label='Simulated trajectory', c='C1')
+            plt.plot(pos.cpu()[:,i,0], pos.cpu()[:,i,1], label='Simulated trajectory', c='C1')
             if i==0:
                 plt.legend()
 
