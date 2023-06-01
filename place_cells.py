@@ -53,7 +53,7 @@ class PlaceCells( object ):
                 point = Point( x, y )
 
                 if self.polygon.contains( point ):
-
+                    
                     points.append( point )
 
             self.us = torch.tensor(

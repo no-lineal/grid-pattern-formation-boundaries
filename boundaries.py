@@ -20,8 +20,8 @@ def trapezoid( box_width, box_height ):
     trapezoid = Polygon(
         [
             (-box_width/2, -box_height/2), 
-            (-box_width/2 + box_width/4, box_height/2), 
-            (box_width/2 - box_width/4, box_height/2),
+            (-box_width/2 + box_width/2, box_height/2), 
+            (box_width/2 - box_width/2, box_height/2),
             (box_width/2, -box_height/2)
         ]
     )
@@ -66,3 +66,24 @@ def cube( side_length ):
     boundaries = center + vertices
 
     return boundaries
+
+def donut(box_width, box_height, resolution=100):
+
+    points = []
+
+    for i in range(resolution):
+        
+        angle = (2 * math.pi * i) / resolution
+
+        outer_x = 0 + box_width / 2 * math.cos(angle)
+        outer_y = 0 + box_height / 2 * math.sin(angle)
+
+        inner_x = 0 + ((box_width / 2) - 1.0 ) * math.cos(angle)
+        inner_y = 0 + ((box_width / 2) - 1.0 ) * math.sin(angle)
+
+        points.append((outer_x, outer_y))
+        points.append((inner_x, inner_y))
+
+    donut = Polygon(points)
+
+    return donut

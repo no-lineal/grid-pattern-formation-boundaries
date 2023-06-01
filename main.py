@@ -152,7 +152,11 @@ parser.add_argument(
 )
 
 options = parser.parse_args()
-os.mkdir( save_path + options.model_name )
+
+try:
+    os.mkdir( save_path + options.model_name )
+except:
+    pass
 
 if __name__ == '__main__':
     
@@ -168,6 +172,7 @@ if __name__ == '__main__':
     #polygon = boundaries.square( 2.2, 2.2 )
     polygon = boundaries.trapezoid( 2.4, 2.4 )
     #polygon = boundaries.circle( 2.2, 2.2 )
+    #polygon = boundaries.donut( 2.2, 2.2 )
     #polygon = boundaries.cube( 2.2 )
 
     # generate place cells object
