@@ -35,8 +35,8 @@ def circle( box_width, box_height, resolution=100 ):
 
         angle = (2 * math.pi * i) / resolution
 
-        x = 0 + box_width/2 * math.cos(angle)
-        y = 0 + box_height/2 * math.sin(angle)
+        x = box_width/2 * math.cos(angle)
+        y = box_height/2 * math.sin(angle)
 
         points.append((x, y))
 
@@ -67,22 +67,24 @@ def cube( side_length ):
 
     return boundaries
 
-def donut(box_width, box_height, resolution=100):
+def donut(outer_radius, inner_radius, num_points=100):
 
     points = []
+    angle_increment = 2 * 3.14159 / num_points
 
-    for i in range(resolution):
-        
-        angle = (2 * math.pi * i) / resolution
+    # Generate points for the outer circle
+    for i in range(num_points):
+        angle = i * angle_increment
+        x = outer_radius * math.cos(angle)
+        y = outer_radius * math.sin(angle)
+        points.append((x, y))
 
-        outer_x = 0 + box_width / 2 * math.cos(angle)
-        outer_y = 0 + box_height / 2 * math.sin(angle)
-
-        inner_x = 0 + ((box_width / 2) - 1.0 ) * math.cos(angle)
-        inner_y = 0 + ((box_width / 2) - 1.0 ) * math.sin(angle)
-
-        points.append((outer_x, outer_y))
-        points.append((inner_x, inner_y))
+    # Generate points for the inner circle
+    for i in range(num_points):
+        angle = i * angle_increment
+        x = inner_radius * math.cos(angle)
+        y = inner_radius * math.sin(angle)
+        points.append((x, y))
 
     donut = Polygon(points)
 

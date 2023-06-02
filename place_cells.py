@@ -52,9 +52,16 @@ class PlaceCells( object ):
 
                 point = Point( x, y )
 
-                if self.polygon.contains( point ):
+                if polygon.is_empty or len(polygon.interiors) > 0:
                     
-                    points.append( point )
+                    if self.polygon.contains( point ) and not polygon.interiors[0].contains(point):
+
+                        points.append( points )
+
+                else:
+                    if self.polygon.contains( point ):
+                    
+                        points.append( point )
 
             self.us = torch.tensor(
                 np.array( 

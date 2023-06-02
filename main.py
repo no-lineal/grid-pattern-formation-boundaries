@@ -39,7 +39,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--model_name',
-    default='100_1000_trapezoid/',
+    default='100_1000_donut/',
     help='name of model'
 )
 
@@ -170,9 +170,9 @@ if __name__ == '__main__':
 
     # generate bounds
     #polygon = boundaries.square( 2.2, 2.2 )
-    polygon = boundaries.trapezoid( 2.4, 2.4 )
+    #polygon = boundaries.trapezoid( 2.2, 2.2 )
     #polygon = boundaries.circle( 2.2, 2.2 )
-    #polygon = boundaries.donut( 2.2, 2.2 )
+    polygon = boundaries.donut( 2.2, 1.1 )
     #polygon = boundaries.cube( 2.2 )
 
     # generate place cells object
