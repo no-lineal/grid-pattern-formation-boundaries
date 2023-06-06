@@ -14,7 +14,7 @@ import argparse
 
 # viz
 from matplotlib import pyplot as plt
-from matplotlib.patches import Polygon as mpl_polygon
+import plotly.graph_objects as go
 
 parser = argparse.ArgumentParser()
 
@@ -39,7 +39,7 @@ parser.add_argument(
 
 parser.add_argument(
     '--model_name',
-    default='100_1000_donut/',
+    default='100_1000_cube/',
     help='name of model'
 )
 
@@ -172,8 +172,8 @@ if __name__ == '__main__':
     #polygon = boundaries.square( 2.2, 2.2 )
     #polygon = boundaries.trapezoid( 2.2, 2.2 )
     #polygon = boundaries.circle( 2.2, 2.2 )
-    polygon = boundaries.donut( 2.2, 1.1 )
-    #polygon = boundaries.cube( 2.2 )
+    #polygon = boundaries.annulus( 2.2, 1.1 )
+    polygon = boundaries.cube( 2.2 )
 
     # generate place cells object
     place_cells = PlaceCells( options, polygon)
@@ -205,19 +205,68 @@ if __name__ == '__main__':
 
     test_trajectory = True
 
+    print(us.shape)
     if test_trajectory:
 
-        inputs, pos, pc_outputs = trajectory_generator.get_test_batch()
-        pos = pos.cpu()
+        if us.shape[1] == 2:
 
-        plt.figure(figsize=(5,5))
-        plt.scatter(us.cpu()[:,0], us.cpu()[:,1], c='lightgrey', label='Place cell centers')
-        for i in range( options.batch_size ):
-            plt.plot(pos.cpu()[:,i,0], pos.cpu()[:,i,1], label='Simulated trajectory', c='C1')
-            if i==0:
-                plt.legend()
+            inputs, pos, pc_outputs = trajectory_generator.get_test_batch()
+            pos = pos.cpu()
 
-        plt.savefig( options.save_path + options.model_name + 'trajectory.png' )
+            plt.figure(figsize=(5,5))
+            plt.scatter(us.cpu()[:,0], us.cpu()[:,1], c='lightgrey', label='Place cell centers')
+            for i in range( options.batch_size ):
+                plt.plot(pos.cpu()[:,i,0], pos.cpu()[:,i,1], label='Simulated trajectory', c='C1')
+                if i==0:
+                    plt.legend()
+
+            plt.savefig( options.save_path + options.model_name + 'trajectory.png' )
+
+        else:
+
+            inputs, pos, pc_outputs = trajectory_generator.get_test_batch()
+            pos = pos.cpu()
+
+            data = []
+
+            trace0 = go.Scatter3d(
+                x = us.cpu()[:,0],
+                y = us.cpu()[:,1],
+                z = us.cpu()[:,2],
+                mode = 'markers',
+                marker = dict(size=4, color='blue', opacity=0.7),
+                name = 'place cells'
+            )
+            
+            data.append(trace0)
+
+            # Create a trace for the trajectory
+
+            for i in range( options.batch_size ):
+
+                data.append(
+                    go.Scatter3d(
+                        x = pos.cpu()[:, i, 0],  # your x coordinates
+                        y = pos.cpu()[:, i, 1],
+                        z = pos.cpu()[:, i, 2],
+                        mode = 'lines',
+                        line = dict(color='red', width=2),
+                        name = 'trajectory ' + str(i)
+                    )
+                )
+
+            layout = go.Layout(
+                margin=dict(l=0, r=0, b=0, t=0),
+                scene=dict(
+                    xaxis_title='X',
+                    yaxis_title='Y',
+                    zaxis_title='Z'
+                )
+            )
+
+            fig = go.Figure(data=data, layout=layout)
+            fig.write_html( options.save_path + options.model_name + 'trajectory.html' )
+
 
     # model
     if options.RNN_type == 'RNN':
@@ -235,5 +284,5 @@ if __name__ == '__main__':
         pass
 
     # training
-    trainer = Trainer( options, model, trajectory_generator, polygon )
-    trainer.train( n_epochs=options.n_epochs, n_steps=options.n_steps )
+    #trainer = Trainer( options, model, trajectory_generator, polygon )
+    #trainer.train( n_epochs=options.n_epochs, n_steps=options.n_steps )

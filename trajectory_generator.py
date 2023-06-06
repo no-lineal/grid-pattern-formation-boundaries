@@ -60,10 +60,30 @@ class TrajectoryGenerator( object ):
             turn_angle[ is_near_wall ] = np.sign( a_wall[ is_near_wall ] ) * ( np.pi / 2 - np.abs( a_wall[ is_near_wall ] ) )
 
         elif isinstance(self.polygon, np.ndarray):
+            
+            points = [ np.array( [ x, y, z ] ) for x, y, z in position ]
 
-            x = position[:, 0]
-            y = position[:, 1]
-            z = position[:, 2]
+            dists = []
+            for p in points:
+
+                dist = np.sqrt( np.sum( (self.polygon - p) ** 2, axis=-1 ) )
+                dists.append( dist )
+
+            dists = np.array( dists )
+            d_wall = np.min( dists, axis=1 )
+            
+            num_vertices = self.polygon.shape[0]
+
+            angles = np.arange( num_vertices ) * np.pi / 2
+            theta = angles[ np.argmin( dists, axis=1 ) ]
+
+            head_direction = np.mod( head_direction, 2 * np.pi )
+            a_wall = head_direction - theta
+            a_wall = np.mod( a_wall + np.pi, 2 * np.pi ) - np.pi
+
+            is_near_wall = ( d_wall < self.border_region ) * ( np.abs( a_wall ) < np.pi / 2 )
+            turn_angle = np.zeros_like( head_direction )
+            turn_angle[ is_near_wall ] = np.sign( a_wall[ is_near_wall ] ) * ( np.pi / 2 - np.abs( a_wall[ is_near_wall ] ) )
 
         return is_near_wall, turn_angle
 
@@ -159,6 +179,98 @@ class TrajectoryGenerator( object ):
             trajectory['target_x'] = position[:, 2:, 0]
             trajectory['target_y'] = position[:, 2:, 1]
 
+        elif isinstance(self.polygon, np.ndarray):
+
+            min_x, min_y, min_z = np.min( self.polygon, axis=0 )
+            max_x, max_y, max_z = np.max( self.polygon, axis=0 )
+
+            # initialize variables
+            position = np.zeros( [ batch_size, samples + 2, self.polygon.shape[1] ] ) # batch, steps, (x, y, z)
+            head_direction = np.zeros( [ batch_size, samples + 2 ] ) # batch, steps
+
+            start_points = []
+            while len(start_points) < batch_size:
+
+                x = np.random.uniform(min_x, max_x)
+                y = np.random.uniform(min_y, max_y)
+                z = np.random.uniform(min_z, max_z)
+
+                point = np.array( [ x, y, z ] )
+
+                if np.all(np.logical_and( self.polygon.min(axis=0) <= point, point <= self.polygon.max(axis=0))):
+
+                    start_points.append( point )
+
+            position[:, 0, 0] = np.array( [ point[0] for point in start_points ] )
+            position[:, 0, 1] = np.array( [ point[1] for point in start_points ] )
+            position[:, 0, 2] = np.array( [ point[2] for point in start_points ] )
+
+            head_direction[:, 0] = np.random.uniform(0, 2 * np.pi, batch_size) # radians
+
+            velocity = np.zeros( [ batch_size, samples + 2 ] ) # batch, steps
+
+            # generate a sequence of random boosts and turns
+            random_turn = np.random.normal( mu, sigma, [ batch_size, samples + 1 ] )
+            random_vel = np.random.rayleigh( b, [ batch_size, samples + 1 ] )
+
+            v = np.abs( np.random.normal( 0, b * np.pi / 2, batch_size ) )
+
+            for t in range( samples + 1 ):
+
+                # update velocity
+                v = random_vel[:, t]
+                turn_angle = np.zeros( batch_size )
+
+                # not false == true
+                if not self.periodic:
+
+                    # if in border region, turn and slow down
+                    is_near_wall, turn_angle = self.avoid_wall( position[:, t], head_direction[:, t] )
+                    v[ is_near_wall ] *= 0.25
+
+                # update turn angle
+                turn_angle += dt * random_turn[:, t]
+
+                # take a step
+                velocity[:, t] = v * dt
+                # ----------- uwu -----------
+                coin = np.random.choice( [ 0, 1 ] )
+
+                if coin == 0:
+                    update = velocity[:, t, None] * np.stack([np.cos(head_direction[:, t]), np.sin(head_direction[:, t]), np.cos(head_direction[:, t]) ], axis=-1)
+                else:
+                    update = velocity[:, t, None] * np.stack([np.cos(head_direction[:, t]), np.sin(head_direction[:, t]), np.sin(head_direction[:, t]) ], axis=-1)
+                
+                position[:, t + 1] = position[:, t] + update
+
+                # rotate head direction
+                head_direction[:, t + 1] = head_direction[:, t] + turn_angle
+
+            head_direction = np.mod(head_direction + np.pi, 2 * np.pi) - np.pi  # Periodic variable
+
+            trajectory = {}
+
+            # input variables
+            trajectory['init_hd'] = head_direction[:, 0, None]
+            trajectory['init_x'] = position[:, 1, 0, None]
+            trajectory['init_y'] = position[:, 1, 1, None]
+            trajectory['init_z'] = position[:, 1, 2, None]
+            trajectory['ego_v'] = velocity[:, 1:-1 ]
+            ang_v = np.diff( head_direction, axis=-1 )
+            # ----------- uwu -----------
+            coin = np.random.choice( [ 0, 1 ] )
+
+            if coin == 0:
+                trajectory['phi_x'], trajectory['phi_y'], trajectory['phi_z'] = np.cos(ang_v)[:, :-1], np.sin(ang_v)[:, :-1], np.cos(ang_v)[:, :-1]
+            else:
+                trajectory['phi_x'], trajectory['phi_y'], trajectory['phi_z'] = np.cos(ang_v)[:, :-1], np.sin(ang_v)[:, :-1], np.sin(ang_v)[:, :-1]
+
+            # target variables
+            trajectory['target_hd'] = head_direction[:, 1:-1]
+            trajectory['target_x'] = position[:, 2:, 0]
+            trajectory['target_y'] = position[:, 2:, 1]
+            trajectory['target_z'] = position[:, 2:, 2]
+
         return trajectory
     
     def get_test_batch( self, batch_size=None ):
@@ -187,15 +299,29 @@ class TrajectoryGenerator( object ):
         v = torch.tensor(v, dtype=torch.float32).transpose(0, 1)
 
         # position
-        pos = np.stack( [ trajectory['target_x'], trajectory['target_y'] ], axis=-1 )
+        if 'target_z' in trajectory.keys():
+
+            pos = np.stack( [ trajectory['target_x'], trajectory['target_y'], trajectory['target_z'] ], axis=-1 )
+
+        else:
+            pos = np.stack( [ trajectory['target_x'], trajectory['target_y'] ], axis=-1 )
+
         pos = torch.tensor( pos, dtype=torch.float32 ).transpose(0, 1)
         pos = pos.to( self.device )
 
         # activation
+        print(f'pos shape: { pos.shape }')
         place_outputs = self.place_cells.get_activation(pos)
 
         # initial position
-        init_pos = np.stack( [ trajectory['init_x'], trajectory['init_y'] ] , axis=-1 )
+        if 'init_z' in trajectory.keys():
+
+            init_pos = np.stack( [ trajectory['init_x'], trajectory['init_y'], trajectory['init_z'] ] , axis=-1 )
+
+        else:
+
+            init_pos = np.stack( [ trajectory['init_x'], trajectory['init_y'] ] , axis=-1 )
+
         init_pos = torch.tensor(init_pos, dtype=torch.float32)
         init_pos = init_pos.to( self.device )
 
@@ -236,7 +362,14 @@ class TrajectoryGenerator( object ):
             v = torch.tensor(v, dtype=torch.float32).transpose(0, 1)
 
             # position
-            pos = np.stack( [ trajectory['target_x'], trajectory['target_y'] ], axis=-1 )
+            if 'target_z' in trajectory.keys():
+                    
+                pos = np.stack( [ trajectory['target_x'], trajectory['target_y'], trajectory['target_z'] ], axis=-1 )
+
+            else:
+                
+                pos = np.stack( [ trajectory['target_x'], trajectory['target_y'] ], axis=-1 )
+
             pos = torch.tensor( pos, dtype=torch.float32 ).transpose(0, 1)
             pos = pos.to( self.device )
 
@@ -244,7 +377,14 @@ class TrajectoryGenerator( object ):
             place_outputs = self.place_cells.get_activation(pos)
 
             # initial position
-            init_pos = np.stack( [ trajectory['init_x'], trajectory['init_y'] ] , axis=-1 )
+            if 'init_z' in trajectory.keys():
+
+                init_pos = np.stack( [ trajectory['init_x'], trajectory['init_y'], trajectory['init_z'] ] , axis=-1 )
+                
+            else:
+
+                init_pos = np.stack( [ trajectory['init_x'], trajectory['init_y'] ] , axis=-1 )
+
             init_pos = torch.tensor(init_pos, dtype=torch.float32)
             init_pos = init_pos.to( self.device )
 

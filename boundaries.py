@@ -20,8 +20,8 @@ def trapezoid( box_width, box_height ):
     trapezoid = Polygon(
         [
             (-box_width/2, -box_height/2), 
-            (-box_width/2 + box_width/2, box_height/2), 
-            (box_width/2 - box_width/2, box_height/2),
+            (-box_width/2 + box_width/4, box_height/2), 
+            (box_width/2 - box_width/4, box_height/2),
             (box_width/2, -box_height/2)
         ]
     )
@@ -67,7 +67,7 @@ def cube( side_length ):
 
     return boundaries
 
-def donut(outer_radius, inner_radius, num_points=100):
+def annulus(outer_radius, inner_radius, num_points=100):
 
     points = []
     angle_increment = 2 * 3.14159 / num_points

@@ -166,32 +166,16 @@ class PlaceCells( object ):
 
         """
 
-        if self.environment == 'square':
+        min_x, min_y, max_x, max_y = self.polygon.bounds
 
-            coordsx = np.linspace(-self.box_width/2, self.box_width/2, res)
-            coordsy = np.linspace(-self.box_height/2, self.box_height/2, res)
+        width = max_x - min_x
+        height = max_y - min_y
 
-            grid_x, grid_y = np.meshgrid(coordsx, coordsy)
-            grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
+        coordsx = np.linspace(-width/2, width/2, res)
+        coordsy = np.linspace(-height/2, height/2, res)
 
-        elif self.environment == 'trapezoid':
-
-            trapezoid = Polygon(
-                [
-                    (-self.box_width/2, -self.box_height/2),
-                    (-self.box_width/2 + self.box_width/4, self.box_height/2),
-                    (self.box_width/2 - self.box_width/4, self.box_height/2),
-                    (self.box_width/2, -self.box_height/2)
-                ]
-            )
-
-            xmin, ymin, xmax, ymax = trapezoid.bounds
-
-            coordsx = np.arange( xmin, xmax, res )
-            coordsy = np.arange( ymin, ymax, res )
-
-            grid_x, grid_y = np.meshgrid( coordsx, coordsy )
-            grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
+        grid_x, grid_y = np.meshgrid(coordsx, coordsy)
+        grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
 
         # Convert to numpy
         pc_outputs = pc_outputs.reshape(-1, self.Np)
@@ -214,10 +198,15 @@ class PlaceCells( object ):
         
         """
 
+        min_x, min_y, max_x, max_y = self.polygon.bounds
+
+        width = max_x - min_x
+        height = max_y - min_y
+
         pos = np.array(
             np.meshgrid(
-                np.linspace( -self.box_width/2, self.box_width/2, res),
-                np.linspace( -self.box_height/2, self.box_height/2, res)
+                np.linspace( -width/2, width/2, res),
+                np.linspace( -height/2, height/2, res)
             )
         ).T
 
