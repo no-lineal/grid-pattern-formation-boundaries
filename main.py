@@ -284,5 +284,5 @@ if __name__ == '__main__':
         pass
 
     # training
-    #trainer = Trainer( options, model, trajectory_generator, polygon )
-    #trainer.train( n_epochs=options.n_epochs, n_steps=options.n_steps )
+    trainer = Trainer( options, model, trajectory_generator, polygon )
+    trainer.train( n_epochs=options.n_epochs, n_steps=options.n_steps )

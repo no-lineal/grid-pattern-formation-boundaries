@@ -104,17 +104,24 @@ class Trainer(object):
                     np.round(loss, 2), np.round(100 * err, 2)))
 
             if save:
-                # Save checkpoint
-                ckpt_path = os.path.join(self.ckpt_dir, 'epoch_{}.pth'.format(epoch_idx))
-                torch.save(self.model.state_dict(), ckpt_path)
-                torch.save(self.model.state_dict(), os.path.join(self.ckpt_dir,
-                                                                 'most_recent_model.pth'))
 
-                # Save a picture of rate maps
-                save_ratemaps(
-                    self.model, 
-                    self.trajectory_generator,
-                    self.polygon,
-                    self.options, 
-                    step=epoch_idx
-                )
+                if not isinstance(self.polygon, np.ndarray):
+
+                    # Save checkpoint
+                    ckpt_path = os.path.join(self.ckpt_dir, 'epoch_{}.pth'.format(epoch_idx))
+                    torch.save(self.model.state_dict(), ckpt_path)
+                    torch.save(self.model.state_dict(), os.path.join(self.ckpt_dir,
+                                                                    'most_recent_model.pth'))
+
+                    # Save a picture of rate maps
+                    save_ratemaps(
+                        self.model, 
+                        self.trajectory_generator,
+                        self.polygon,
+                        self.options, 
+                        step=epoch_idx
+                    )
+
+                elif isinstance(self.polygon, np.ndarray):
+
+                    pass
