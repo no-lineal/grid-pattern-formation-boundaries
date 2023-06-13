@@ -15,6 +15,8 @@ class RNN(torch.nn.Module):
         self.weight_decay = options.weight_decay # regularization
         self.place_cells = place_cells # place cell matrix, Npx2
 
+        
+
         # Input weights
 
         # linear input layer
@@ -25,12 +27,24 @@ class RNN(torch.nn.Module):
             )
         
         # recurrent layer
-        self.RNN = torch.nn.RNN(
-            input_size=2, 
-            hidden_size=self.Ng, 
-            nonlinearity=options.activation, 
-            bias=False
-            )
+
+        if self.place_cells.us.shape[1] == 2:
+
+            self.RNN = torch.nn.RNN(
+                input_size=2, 
+                hidden_size=self.Ng, 
+                nonlinearity=options.activation, 
+                bias=False
+                )
+            
+        else:
+
+            self.RNN = torch.nn.RNN(
+                input_size=3, 
+                hidden_size=self.Ng, 
+                nonlinearity=options.activation, 
+                bias=False
+                )
 
         # linear read-out weights
         self.decoder = torch.nn.Linear(

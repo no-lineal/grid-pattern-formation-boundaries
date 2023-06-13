@@ -76,8 +76,8 @@ class PlaceCells( object ):
             # random seed
             np.random.seed( 0 )
 
-            min_values = np.min(polygon, axis=0)
-            max_values = np.max(polygon, axis=0)
+            min_values = np.min(self.polygon, axis=0)
+            max_values = np.max(self.polygon, axis=0)
 
             points = []
             while len(points) < self.Np:
@@ -166,28 +166,54 @@ class PlaceCells( object ):
 
         """
 
-        min_x, min_y, max_x, max_y = self.polygon.bounds
+        if not isinstance(self.polygon, np.ndarray):
 
-        width = max_x - min_x
-        height = max_y - min_y
+            min_x, min_y, max_x, max_y = self.polygon.bounds
 
-        coordsx = np.linspace(-width/2, width/2, res)
-        coordsy = np.linspace(-height/2, height/2, res)
+            width = max_x - min_x
+            height = max_y - min_y
 
-        grid_x, grid_y = np.meshgrid(coordsx, coordsy)
-        grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
+            coordsx = np.linspace(-width/2, width/2, res)
+            coordsy = np.linspace(-height/2, height/2, res)
 
-        # Convert to numpy
-        pc_outputs = pc_outputs.reshape(-1, self.Np)
+            grid_x, grid_y = np.meshgrid(coordsx, coordsy)
+            grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
+
+            # Convert to numpy
+            pc_outputs = pc_outputs.reshape(-1, self.Np)
+            
+            T = pc_outputs.shape[0] #T vs transpose? What is T? (dim's?)
+            pc = np.zeros([T, res, res])
+
+            for i in range(len(pc_outputs)):
+
+                gridval = scipy.interpolate.griddata(self.us.cpu(), pc_outputs[i], grid)
+                pc[i] = gridval.reshape([res, res])
         
-        T = pc_outputs.shape[0] #T vs transpose? What is T? (dim's?)
-        pc = np.zeros([T, res, res])
 
-        for i in range(len(pc_outputs)):
+        else:
 
-            gridval = scipy.interpolate.griddata(self.us.cpu(), pc_outputs[i], grid)
-            pc[i] = gridval.reshape([res, res])
-        
+            min_values = np.min(self.polygon, axis=0)
+            max_values = np.max(self.polygon, axis=0)
+
+            coordsx = np.linspace(min_values[0], max_values[0], res)
+            coordsy = np.linspace(min_values[1], max_values[1], res)
+            coordsz = np.linspace(min_values[2], max_values[2], res)
+
+            grid_x, grid_y, grid_z = np.meshgrid(coordsx, coordsy, coordsz)
+            grid = np.stack([grid_x.ravel(), grid_y.ravel(), grid_z.ravel()]).T
+
+            # Convert to numpy
+            pc_outputs = pc_outputs.reshape(-1, self.Np)
+
+            T = pc_outputs.shape[0] #T vs transpose? What is T? (dim's?)
+            pc = np.zeros([T, res, res, res])
+
+            for i in range(len(pc_outputs)):
+
+                gridval = scipy.interpolate.griddata(self.us.cpu(), pc_outputs[i], grid)
+                pc[i] = gridval.reshape([res, res, res])
+
         return pc
     
     def compute_covariance(self, res=30):
@@ -198,36 +224,73 @@ class PlaceCells( object ):
         
         """
 
-        min_x, min_y, max_x, max_y = self.polygon.bounds
+        if not isinstance(self.polygon, np.ndarray):
 
-        width = max_x - min_x
-        height = max_y - min_y
+            min_x, min_y, max_x, max_y = self.polygon.bounds
 
-        pos = np.array(
-            np.meshgrid(
-                np.linspace( -width/2, width/2, res),
-                np.linspace( -height/2, height/2, res)
-            )
-        ).T
+            width = max_x - min_x
+            height = max_y - min_y
 
-        pos = torch.tensor(pos)
+            pos = np.array(
+                np.meshgrid(
+                    np.linspace( -width/2, width/2, res),
+                    np.linspace( -height/2, height/2, res)
+                )
+            ).T
 
-        # Put on GPU if available
-        pos = pos.to(self.device)
+            pos = torch.tensor(pos)
 
-        # maybe specify dimensions here again?
-        pc_outputs = self.get_activation( pos ).reshape( -1, self.Np ).cpu()
+            # Put on GPU if available
+            pos = pos.to(self.device)
 
-        C = pc_outputs@pc_outputs.T # matrix multiplication
-        Csquare = C.reshape(res, res, res, res)
+            # maybe specify dimensions here again?
+            pc_outputs = self.get_activation( pos ).reshape( -1, self.Np ).cpu()
 
-        Cmean = np.zeros([res,res])
+            C = pc_outputs@pc_outputs.T # matrix multiplication
+            Csquare = C.reshape(res, res, res, res)
 
-        for i in range(res):
-            for j in range(res):
+            Cmean = np.zeros([res,res])
 
-                Cmean += np.roll(np.roll(Csquare[i,j], -i, axis=0), -j, axis=1)
-                
-        Cmean = np.roll(np.roll(Cmean, res//2, axis=0), res//2, axis=1)
+            for i in range(res):
+                for j in range(res):
+
+                    Cmean += np.roll(np.roll(Csquare[i,j], -i, axis=0), -j, axis=1)
+                    
+            Cmean = np.roll(np.roll(Cmean, res//2, axis=0), res//2, axis=1)
+
+        else:
+
+            min_values = np.min(self.polygon, axis=0)
+            max_values = np.max(self.polygon, axis=0)
+
+            coordsx = np.linspace(min_values[0], max_values[0], res)
+            coordsy = np.linspace(min_values[1], max_values[1], res)
+            coordsz = np.linspace(min_values[2], max_values[2], res)
+
+            pos = np.array(
+                np.meshgrid(coordsx, coordsy, coordsz)
+            ).T
+
+            pos = torch.tensor(pos)
+
+            # Put on GPU if available
+            pos = pos.to(self.device)
+
+            # maybe specify dimensions here again?
+            pc_outputs = self.get_activation( pos ).reshape( -1, self.Np ).cpu()
+
+            C = pc_outputs@pc_outputs.T # matrix multiplication
+            Csquare = C.reshape(res, res, res, res, res)
+
+            Cmean = np.zeros([res,res,res])
+
+            for i in range(res):
+                for j in range(res):
+                    for k in range(res):
+
+                        Cmean += np.roll(np.roll(np.roll(Csquare[i,j,k], -i, axis=0), -j, axis=1), -k, axis=2)
+
+            Cmean = np.roll(np.roll(np.roll(Cmean, res//2, axis=0), res//2, axis=1), res//2, axis=2)
+
 
         return Cmean

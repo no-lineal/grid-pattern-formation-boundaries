@@ -205,7 +205,6 @@ if __name__ == '__main__':
 
     test_trajectory = True
 
-    print(us.shape)
     if test_trajectory:
 
         if us.shape[1] == 2:

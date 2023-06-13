@@ -234,12 +234,12 @@ class TrajectoryGenerator( object ):
                 # take a step
                 velocity[:, t] = v * dt
                 # ----------- uwu -----------
-                coin = np.random.choice( [ 0, 1 ] )
+                #coin = np.random.choice( [ 0, 1 ] )
 
-                if coin == 0:
-                    update = velocity[:, t, None] * np.stack([np.cos(head_direction[:, t]), np.sin(head_direction[:, t]), np.cos(head_direction[:, t]) ], axis=-1)
-                else:
-                    update = velocity[:, t, None] * np.stack([np.cos(head_direction[:, t]), np.sin(head_direction[:, t]), np.sin(head_direction[:, t]) ], axis=-1)
+                #if coin == 0:
+                update = velocity[:, t, None] * np.stack([np.cos(head_direction[:, t]), np.sin(head_direction[:, t]), np.cos(head_direction[:, t]) ], axis=-1)
+                #else:
+                #    update = velocity[:, t, None] * np.stack([np.cos(head_direction[:, t]), np.sin(head_direction[:, t]), np.sin(head_direction[:, t]) ], axis=-1)
                 
                 position[:, t + 1] = position[:, t] + update
 
@@ -258,12 +258,12 @@ class TrajectoryGenerator( object ):
             trajectory['ego_v'] = velocity[:, 1:-1 ]
             ang_v = np.diff( head_direction, axis=-1 )
             # ----------- uwu -----------
-            coin = np.random.choice( [ 0, 1 ] )
+            #coin = np.random.choice( [ 0, 1 ] )
 
-            if coin == 0:
-                trajectory['phi_x'], trajectory['phi_y'], trajectory['phi_z'] = np.cos(ang_v)[:, :-1], np.sin(ang_v)[:, :-1], np.cos(ang_v)[:, :-1]
-            else:
-                trajectory['phi_x'], trajectory['phi_y'], trajectory['phi_z'] = np.cos(ang_v)[:, :-1], np.sin(ang_v)[:, :-1], np.sin(ang_v)[:, :-1]
+            #if coin == 0:
+            trajectory['phi_x'], trajectory['phi_y'], trajectory['phi_z'] = np.cos(ang_v)[:, :-1], np.sin(ang_v)[:, :-1], np.cos(ang_v)[:, :-1]
+            #else:
+            #    trajectory['phi_x'], trajectory['phi_y'], trajectory['phi_z'] = np.cos(ang_v)[:, :-1], np.sin(ang_v)[:, :-1], np.sin(ang_v)[:, :-1]
 
             # target variables
             trajectory['target_hd'] = head_direction[:, 1:-1]
@@ -288,13 +288,26 @@ class TrajectoryGenerator( object ):
         trajectory = self.generate_trajectory( batch_size )
 
         # velocity
-        v = np.stack(
-            [
-                trajectory['ego_v'] * np.cos(trajectory['target_hd']), 
-                trajectory['ego_v'] * np.sin(trajectory['target_hd'])
-            ], 
-            axis=-1
-        )
+        if 'target_z' in trajectory.keys():
+
+            v = np.stack(
+                [
+                    trajectory['ego_v'] * np.cos(trajectory['target_hd']), 
+                    trajectory['ego_v'] * np.sin(trajectory['target_hd']), 
+                    trajectory['ego_v'] * np.cos(trajectory['target_hd'])
+                ], 
+                axis=-1
+            )
+
+        else:
+
+            v = np.stack(
+                [
+                    trajectory['ego_v'] * np.cos(trajectory['target_hd']), 
+                    trajectory['ego_v'] * np.sin(trajectory['target_hd'])
+                ], 
+                axis=-1
+            )
 
         v = torch.tensor(v, dtype=torch.float32).transpose(0, 1)
 
@@ -310,7 +323,6 @@ class TrajectoryGenerator( object ):
         pos = pos.to( self.device )
 
         # activation
-        print(f'pos shape: { pos.shape }')
         place_outputs = self.place_cells.get_activation(pos)
 
         # initial position
@@ -351,13 +363,26 @@ class TrajectoryGenerator( object ):
             trajectory = self.generate_trajectory( batch_size )
 
             # velocity
-            v = np.stack(
-                [
-                    trajectory['ego_v'] * np.cos(trajectory['target_hd']), 
-                    trajectory['ego_v'] * np.sin(trajectory['target_hd'])
-                ], 
-                axis=-1
-            )
+            if 'target_z' in trajectory.keys():
+
+                v = np.stack(
+                    [
+                        trajectory['ego_v'] * np.cos(trajectory['target_hd']),
+                        trajectory['ego_v'] * np.sin(trajectory['target_hd']),
+                        trajectory['ego_v'] * np.cos(trajectory['target_hd'])
+                    ],
+                    axis=-1
+                )
+            
+            else:
+
+                v = np.stack(
+                    [
+                        trajectory['ego_v'] * np.cos(trajectory['target_hd']), 
+                        trajectory['ego_v'] * np.sin(trajectory['target_hd'])
+                    ], 
+                    axis=-1
+                )
 
             v = torch.tensor(v, dtype=torch.float32).transpose(0, 1)
 
