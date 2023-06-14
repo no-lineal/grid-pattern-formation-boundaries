@@ -113,13 +113,13 @@ class Trainer(object):
                     torch.save(self.model.state_dict(), os.path.join(self.ckpt_dir, 'most_recent_model.pth'))
 
                     # Save a picture of rate maps
-                    save_ratemaps(
-                        self.model, 
-                        self.trajectory_generator,
-                        self.polygon,
-                        self.options, 
-                        step=epoch_idx
-                    )
+                    #save_ratemaps(
+                    #    self.model, 
+                    #    self.trajectory_generator,
+                    #    self.polygon,
+                    #    self.options, 
+                    #    step=epoch_idx
+                    #)
 
                 elif isinstance(self.polygon, np.ndarray):
 
