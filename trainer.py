@@ -2,6 +2,8 @@
 import torch
 import numpy as np
 
+import json
+
 from visualize import save_ratemaps
 import os
 
@@ -84,7 +86,7 @@ class Trainer(object):
         gen = self.trajectory_generator.get_generator()
 
         # tbar = tqdm(range(n_steps), leave=False)
-
+        loss_dict = {}
         for epoch_idx in range(n_epochs):
             
             for step_idx in range(n_steps):
@@ -99,9 +101,11 @@ class Trainer(object):
                 # Log error rate to progress bar
                 # tbar.set_description('Error = ' + str(np.int(100*err)) + 'cm')
 
-                print('Epoch: {}/{}. Step {}/{}. Loss: {}. Err: {}cm'.format(
-                    epoch_idx + 1, n_epochs, step_idx + 1, n_steps,
-                    np.round(loss, 2), np.round(100 * err, 2)))
+                #print('Epoch: {}/{}. Step {}/{}. Loss: {}. Err: {}cm'.format(
+                #    epoch_idx + 1, n_epochs, step_idx + 1, n_steps,
+                #    np.round(loss, 2), np.round(100 * err, 2)))
+                
+            loss_dict[ epoch_idx + 1 ] = np.round( loss, 2 )
 
             if save:
 
@@ -127,3 +131,7 @@ class Trainer(object):
                     ckpt_path = os.path.join(self.ckpt_dir, 'epoch_{}.pth'.format(epoch_idx))
                     torch.save(self.model.state_dict(), ckpt_path)
                     torch.save(self.model.state_dict(), os.path.join(self.ckpt_dir, 'most_recent_model.pth'))
+
+        # save loss dict
+        with open( os.path.join( self.ckpt_dir, 'loss_dict.json' ), 'w' ) as f:
+            json.dump( loss_dict, f )

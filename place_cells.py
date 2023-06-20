@@ -27,14 +27,8 @@ class PlaceCells( object ):
         self.softmax = torch.nn.Softmax( dim=-1 )
 
         print('Initializing place cells...')
-        
-        if options.precomputed:
 
-            self.us = torch.tensor(
-                np.load( self.load_path + 'place_cell_centers.npy' )
-            ).to( self.device )
-
-        elif not isinstance(self.polygon, np.ndarray):
+        if not isinstance(self.polygon, np.ndarray):
 
             # random seed
             np.random.seed( 0 )
@@ -52,16 +46,9 @@ class PlaceCells( object ):
 
                 point = Point( x, y )
 
-                if polygon.is_empty or len(polygon.interiors) > 0:
+                if self.polygon.contains( point ):
                     
-                    if self.polygon.contains( point ) and not polygon.interiors[0].contains(point):
-
-                        points.append( points )
-
-                else:
-                    if self.polygon.contains( point ):
-                    
-                        points.append( point )
+                    points.append( point )
 
             self.us = torch.tensor(
                 np.array( 
@@ -73,26 +60,7 @@ class PlaceCells( object ):
 
         elif isinstance(self.polygon, np.ndarray):
 
-            # random seed
-            np.random.seed( 0 )
-
-            min_values = np.min(self.polygon, axis=0)
-            max_values = np.max(self.polygon, axis=0)
-
-            points = []
-            while len(points) < self.Np:
-
-                x = np.random.uniform(min_values[0], max_values[0])
-                y = np.random.uniform(min_values[1], max_values[1])
-                z = np.random.uniform(min_values[2], max_values[2])
-
-                point = np.array([x, y, z])
-
-                if np.all( point >= np.min( polygon , axis=0 ) ) and np.all( point <= np.max( polygon , axis=0 ) ):
-
-                    points.append( point )
-
-            self.us = torch.tensor( points ).to( self.device )
+            print('yo habia ponido el 3d aquí')
 
     def get_activation(self, pos):
         
