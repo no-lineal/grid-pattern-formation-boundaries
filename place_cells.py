@@ -60,7 +60,31 @@ class PlaceCells( object ):
 
         elif isinstance(self.polygon, np.ndarray):
 
-            print('yo habia ponido el 3d aquí')
+            # random seed
+            np.random.seed( 0 )
+
+            min_values = np.min(self.polygon, axis=0)
+            max_values = np.max(self.polygon, axis=0)
+
+            points = []
+            while len(points) < self.Np:
+
+                x = np.random.uniform(min_values[0], max_values[0])
+                y = np.random.uniform(min_values[1], max_values[1])
+                z = np.random.uniform(min_values[2], max_values[2])
+
+                point = [x, y, z]
+
+                if np.all(point >= min_values) and np.all(point <= max_values):
+
+                    points.append(point)
+
+            self.us = torch.tensor(
+                points
+            )
+                
+            self.us = self.us.to( self.device )
+
 
     def get_activation(self, pos):
         

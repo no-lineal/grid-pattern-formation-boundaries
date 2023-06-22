@@ -26,6 +26,29 @@ def annulus(outer_radius, inner_radius, num_points=100):
 
     return annulus
 
+def cube( side_length ):
+
+    center = np.array([0, 0, 0])
+
+    half_side = side_length / 2.0
+
+    vertices = np.array(
+        [
+            [ -half_side, -half_side, -half_side ], 
+            [ -half_side, -half_side, half_side ],
+            [ -half_side,  half_side, -half_side ],
+            [ -half_side,  half_side, half_side ],
+            [ half_side, -half_side,  -half_side ],
+            [ half_side, -half_side,  half_side ],
+            [ half_side,  half_side,  -half_side ],
+            [ half_side,  half_side,  half_side ]
+        ]
+    )
+
+    boundaries = center + vertices
+
+    return boundaries
+
 def get_polygon( polygon ):
 
     if polygon == 'triangle':
@@ -35,3 +58,11 @@ def get_polygon( polygon ):
     elif polygon == 'annulus':
 
         return annulus(2.2, 1.1)
+    
+    elif polygon == 'cube':
+
+        return cube( 2.2 )
+
+    else:
+
+        raise ValueError('Polygon not recognized.')

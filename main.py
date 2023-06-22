@@ -18,6 +18,7 @@ import time
 
 # viz
 from matplotlib import pyplot as plt
+import plotly.graph_objects as go
 
 def generate_options( parameters ):
 
@@ -132,12 +133,51 @@ def plot_trajectory( place_cells, trajectory_generator, polygon, options ):
             exterior_coords = polygon.exterior.xy
             plt.fill(*exterior_coords, color='blue', alpha=0.5, label='Exterior')
 
-        for i in range( options.batch_size ):
+        for i in range( pos.cpu().shape[1] ):
             plt.plot(pos.cpu()[:,i,0], pos.cpu()[:,i,1], label='Simulated trajectory', c='C1')
             if i==0:
                 plt.legend()
 
         plt.savefig( options.save_path + options.model_name + 'trajectory.png' )
+
+    else:
+
+        inputs, pos, pc_outputs = trajectory_generator.get_test_batch()
+        pos = pos.cpu()
+        data = []
+        trace0 = go.Scatter3d(
+            x = us.cpu()[:,0],
+            y = us.cpu()[:,1],
+            z = us.cpu()[:,2],
+            mode = 'markers',
+            marker = dict(size=4, color='blue', opacity=0.7),
+            name = 'place cells'
+        )
+        
+        data.append(trace0)
+        # Create a trace for the trajectory
+        for i in range( pos.cpu().shape[1] ):
+            data.append(
+                go.Scatter3d(
+                    x = pos.cpu()[:, i, 0],  # your x coordinates
+                    y = pos.cpu()[:, i, 1],
+                    z = pos.cpu()[:, i, 2],
+                    mode = 'lines',
+                    line = dict(color='red', width=2),
+                    name = 'trajectory ' + str(i)
+                )
+            )
+        layout = go.Layout(
+            margin=dict(l=0, r=0, b=0, t=0),
+            scene=dict(
+                xaxis_title='X',
+                yaxis_title='Y',
+                zaxis_title='Z'
+            )
+        )
+
+        fig = go.Figure(data=data, layout=layout)
+        fig.write_html( options.save_path + options.model_name + 'trajectory.html' )
 
 if __name__ == '__main__':
 
@@ -146,7 +186,7 @@ if __name__ == '__main__':
     test_trajectory = True
 
     # retrieve the path to the JSON file
-    json_file = './experiments/annulus.json'
+    json_file = './experiments/cube.json'
 
     # load JSON file
     with open( json_file ) as f:
@@ -186,7 +226,7 @@ if __name__ == '__main__':
     model = model.to( options.device )
 
     # log update
-    log.update( {'model': model} )
+    #log.update( {'model': model} )
 
     # train
     trainer = Trainer( options, model, trajectory_generator, polygon )
@@ -197,3 +237,7 @@ if __name__ == '__main__':
 
     # log update
     log.update( { 'training_time': (toc - tic) / 60 } )
+
+    # save log
+    with open( options.save_path + options.model_name + 'log.json', 'w' ) as f:
+        json.dump( log, f )
