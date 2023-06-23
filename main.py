@@ -186,7 +186,7 @@ if __name__ == '__main__':
     test_trajectory = True
 
     # retrieve the path to the JSON file
-    json_file = './experiments/annulus.json'
+    json_file = './experiments/cube.json'
 
     # load JSON file
     with open( json_file ) as f:
