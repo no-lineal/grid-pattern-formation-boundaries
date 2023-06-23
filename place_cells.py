@@ -3,12 +3,9 @@ import torch
 import scipy
 from shapely.geometry import Point
 
-import warnings
-warnings.filterwarnings("ignore")
+class PlaceCells(object):
 
-class PlaceCells( object ):
-
-    def __init__( self, options, polygon, us=None ):
+    def __init__(self, options, polygon, us=None):
 
         self.load_path = options.load_path
         self.save_path = options.save_path
@@ -25,8 +22,6 @@ class PlaceCells( object ):
         self.polygon = polygon
 
         self.softmax = torch.nn.Softmax( dim=-1 )
-
-        print('Initializing place cells...')
 
         if not isinstance(self.polygon, np.ndarray):
 
@@ -125,12 +120,12 @@ class PlaceCells( object ):
             outputs -= self.softmax(-norm2/(2*self.surround_scale*self.sigma**2))
 
             # Shift and scale outputs so that they lie in [0,1].
-            min_output,_ = outputs.min(-1,keepdims=True)
-            outputs += torch.abs(min_output)
-            outputs /= outputs.sum(-1, keepdims=True)
+            #min_output,_ = outputs.min(-1,keepdims=True)
+            #outputs += torch.abs(min_output)
+            #outputs /= outputs.sum(-1, keepdims=True)
 
         return outputs
-    
+
     def get_nearest_cell_pos(self, activation, k=3):
 
         """
@@ -149,7 +144,7 @@ class PlaceCells( object ):
         pred_pos = self.us[idxs].mean(-2)
         
         return pred_pos
-    
+
     def grid_pc(self, pc_outputs, res=32):
 
         """
@@ -158,56 +153,25 @@ class PlaceCells( object ):
 
         """
 
-        if not isinstance(self.polygon, np.ndarray):
+        coordsx = np.linspace(-self.box_width/2, self.box_width/2, res)
+        coordsy = np.linspace(-self.box_height/2, self.box_height/2, res)
 
-            min_x, min_y, max_x, max_y = self.polygon.bounds
+        grid_x, grid_y = np.meshgrid(coordsx, coordsy)
+        grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
 
-            width = max_x - min_x
-            height = max_y - min_y
-
-            coordsx = np.linspace(-width/2, width/2, res)
-            coordsy = np.linspace(-height/2, height/2, res)
-
-            grid_x, grid_y = np.meshgrid(coordsx, coordsy)
-            grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
-
-            # Convert to numpy
-            pc_outputs = pc_outputs.reshape(-1, self.Np)
-            
-            T = pc_outputs.shape[0] #T vs transpose? What is T? (dim's?)
-            pc = np.zeros([T, res, res])
-
-            for i in range(len(pc_outputs)):
-
-                gridval = scipy.interpolate.griddata(self.us.cpu(), pc_outputs[i], grid)
-                pc[i] = gridval.reshape([res, res])
+        # Convert to numpy
+        pc_outputs = pc_outputs.reshape(-1, self.Np)
         
+        T = pc_outputs.shape[0] #T vs transpose? What is T? (dim's?)
+        pc = np.zeros([T, res, res])
 
-        else:
+        for i in range(len(pc_outputs)):
 
-            min_values = np.min(self.polygon, axis=0)
-            max_values = np.max(self.polygon, axis=0)
-
-            coordsx = np.linspace(min_values[0], max_values[0], res)
-            coordsy = np.linspace(min_values[1], max_values[1], res)
-            coordsz = np.linspace(min_values[2], max_values[2], res)
-
-            grid_x, grid_y, grid_z = np.meshgrid(coordsx, coordsy, coordsz)
-            grid = np.stack([grid_x.ravel(), grid_y.ravel(), grid_z.ravel()]).T
-
-            # Convert to numpy
-            pc_outputs = pc_outputs.reshape(-1, self.Np)
-
-            T = pc_outputs.shape[0] #T vs transpose? What is T? (dim's?)
-            pc = np.zeros([T, res, res, res])
-
-            for i in range(len(pc_outputs)):
-
-                gridval = scipy.interpolate.griddata(self.us.cpu(), pc_outputs[i], grid)
-                pc[i] = gridval.reshape([res, res, res])
-
+            gridval = scipy.interpolate.griddata(self.us.cpu(), pc_outputs[i], grid)
+            pc[i] = gridval.reshape([res, res])
+        
         return pc
-    
+
     def compute_covariance(self, res=30):
 
         """
@@ -216,73 +180,31 @@ class PlaceCells( object ):
         
         """
 
-        if not isinstance(self.polygon, np.ndarray):
+        pos = np.array(
+            np.meshgrid(
+                np.linspace( -self.box_width/2, self.box_width/2, res),
+                np.linspace( -self.box_height/2, self.box_height/2, res)
+            )
+        ).T
 
-            min_x, min_y, max_x, max_y = self.polygon.bounds
+        pos = torch.tensor(pos)
 
-            width = max_x - min_x
-            height = max_y - min_y
+        # Put on GPU if available
+        pos = pos.to(self.device)
 
-            pos = np.array(
-                np.meshgrid(
-                    np.linspace( -width/2, width/2, res),
-                    np.linspace( -height/2, height/2, res)
-                )
-            ).T
+        # maybe specify dimensions here again?
+        pc_outputs = self.get_activation( pos ).reshape( -1, self.Np ).cpu()
 
-            pos = torch.tensor(pos)
+        C = pc_outputs@pc_outputs.T # matrix multiplication
+        Csquare = C.reshape(res, res, res, res)
 
-            # Put on GPU if available
-            pos = pos.to(self.device)
+        Cmean = np.zeros([res,res])
 
-            # maybe specify dimensions here again?
-            pc_outputs = self.get_activation( pos ).reshape( -1, self.Np ).cpu()
+        for i in range(res):
+            for j in range(res):
 
-            C = pc_outputs@pc_outputs.T # matrix multiplication
-            Csquare = C.reshape(res, res, res, res)
-
-            Cmean = np.zeros([res,res])
-
-            for i in range(res):
-                for j in range(res):
-
-                    Cmean += np.roll(np.roll(Csquare[i,j], -i, axis=0), -j, axis=1)
-                    
-            Cmean = np.roll(np.roll(Cmean, res//2, axis=0), res//2, axis=1)
-
-        else:
-
-            min_values = np.min(self.polygon, axis=0)
-            max_values = np.max(self.polygon, axis=0)
-
-            coordsx = np.linspace(min_values[0], max_values[0], res)
-            coordsy = np.linspace(min_values[1], max_values[1], res)
-            coordsz = np.linspace(min_values[2], max_values[2], res)
-
-            pos = np.array(
-                np.meshgrid(coordsx, coordsy, coordsz)
-            ).T
-
-            pos = torch.tensor(pos)
-
-            # Put on GPU if available
-            pos = pos.to(self.device)
-
-            # maybe specify dimensions here again?
-            pc_outputs = self.get_activation( pos ).reshape( -1, self.Np ).cpu()
-
-            C = pc_outputs@pc_outputs.T # matrix multiplication
-            Csquare = C.reshape(res, res, res, res, res)
-
-            Cmean = np.zeros([res,res,res])
-
-            for i in range(res):
-                for j in range(res):
-                    for k in range(res):
-
-                        Cmean += np.roll(np.roll(np.roll(Csquare[i,j,k], -i, axis=0), -j, axis=1), -k, axis=2)
-
-            Cmean = np.roll(np.roll(np.roll(Cmean, res//2, axis=0), res//2, axis=1), res//2, axis=2)
-
+                Cmean += np.roll(np.roll(Csquare[i,j], -i, axis=0), -j, axis=1)
+                
+        Cmean = np.roll(np.roll(Cmean, res//2, axis=0), res//2, axis=1)
 
         return Cmean

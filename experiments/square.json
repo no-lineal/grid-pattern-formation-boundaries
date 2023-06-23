@@ -1,7 +1,7 @@
 {
-    "shape": "triangle",
+    "shape": "square",
     "directories": {
-        "model_name": "100_1000_triangle/"
+        "model_name": "100_1000_square/"
     }, 
     "place_cell_parameters": {
         "Np": 512, 

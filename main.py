@@ -210,7 +210,7 @@ if __name__ == '__main__':
     # place cells
     place_cells = PlaceCells( options, polygon)
 
-    # plot place
+    ## plot place
     plot_place_cells( place_cells, polygon, options )
 
     # trajectory simmulation
@@ -225,11 +225,8 @@ if __name__ == '__main__':
     model = RNN( options, place_cells )
     model = model.to( options.device )
 
-    # log update
-    #log.update( {'model': model} )
-
     # train
-    trainer = Trainer( options, model, trajectory_generator, polygon )
+    trainer = Trainer( options=options, model=model, polygon=polygon, trajectory_generator=trajectory_generator, restore=False )
 
     tic = time.perf_counter()
     trainer.train( n_epochs=options.n_epochs, n_steps=options.n_steps )

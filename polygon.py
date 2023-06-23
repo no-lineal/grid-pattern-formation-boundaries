@@ -49,6 +49,19 @@ def cube( side_length ):
 
     return boundaries
 
+def square( box_width, box_height ):
+
+    square = Polygon(
+        [ 
+            (- box_width/2, - box_height/2), 
+            (- box_width/2, box_height/2), 
+            (box_width/2, box_height/2),
+            (box_width/2, - box_height/2) 
+        ] 
+    )
+    
+    return square
+
 def get_polygon( polygon ):
 
     if polygon == 'triangle':
@@ -62,6 +75,10 @@ def get_polygon( polygon ):
     elif polygon == 'cube':
 
         return cube( 2.2 )
+    
+    elif polygon == 'square':
+
+        return square( 2.2, 2.2 )
 
     else:
 
