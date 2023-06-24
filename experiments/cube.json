@@ -1,7 +1,7 @@
 {
     "shape": "cube",
     "directories": {
-        "model_name": "100_1000_cube/"
+        "model_name": "200_2000_cube/"
     }, 
     "place_cell_parameters": {
         "Np": 512, 
