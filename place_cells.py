@@ -153,22 +153,47 @@ class PlaceCells(object):
 
         """
 
-        coordsx = np.linspace(-self.box_width/2, self.box_width/2, res)
-        coordsy = np.linspace(-self.box_height/2, self.box_height/2, res)
+        if not isinstance(self.polygon, np.ndarray):
 
-        grid_x, grid_y = np.meshgrid(coordsx, coordsy)
-        grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
+            coordsx = np.linspace(-self.box_width/2, self.box_width/2, res)
+            coordsy = np.linspace(-self.box_height/2, self.box_height/2, res)
 
-        # Convert to numpy
-        pc_outputs = pc_outputs.reshape(-1, self.Np)
-        
-        T = pc_outputs.shape[0] #T vs transpose? What is T? (dim's?)
-        pc = np.zeros([T, res, res])
+            grid_x, grid_y = np.meshgrid(coordsx, coordsy)
+            grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
 
-        for i in range(len(pc_outputs)):
+            # Convert to numpy
+            pc_outputs = pc_outputs.reshape(-1, self.Np)
+            
+            T = pc_outputs.shape[0] #T vs transpose? What is T? (dim's?)
+            pc = np.zeros([T, res, res])
 
-            gridval = scipy.interpolate.griddata(self.us.cpu(), pc_outputs[i], grid)
-            pc[i] = gridval.reshape([res, res])
+            for i in range(len(pc_outputs)):
+
+                gridval = scipy.interpolate.griddata(self.us.cpu(), pc_outputs[i], grid)
+                pc[i] = gridval.reshape([res, res])
+
+        else:
+
+            min_values = np.min(self.polygon, axis=0)
+            max_values = np.max(self.polygon, axis=0)
+
+            coordsx = np.linspace(min_values[0], max_values[0], res)
+            coordsy = np.linspace(min_values[1], max_values[1], res)
+            coordsz = np.linspace(min_values[2], max_values[2], res)
+
+            grid_x, grid_y, grid_z = np.meshgrid(coordsx, coordsy, coordsz) # 3D grid
+            grid = np.stack([grid_x.ravel(), grid_y.ravel(), grid_z.ravel()]).T # 3D grid
+
+            # Convert to numpy
+            pc_outputs = pc_outputs.reshape(-1, self.Np)
+
+            T = pc_outputs.shape[0] #T vs transpose? What is T? (dim's?)
+            pc = np.zeros([T, res, res, res])
+
+            for i in range(len(pc_outputs)):
+
+                gridval = scipy.interpolate.griddata(self.us.cpu(), pc_outputs[i], grid)
+                pc[i] = gridval.reshape([res, res, res])
         
         return pc
 

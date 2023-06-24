@@ -187,7 +187,7 @@ if __name__ == '__main__':
 
     # retrieve the path to the JSON file
     #json_file = './experiments/cube.json'
-    json_file = './experiments/square.json'
+    json_file = './experiments/cube.json'
 
     # load JSON file
     with open( json_file ) as f:
