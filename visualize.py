@@ -140,8 +140,9 @@ def save_ratemaps(model, trajectory_generator, polygon, options, step, res=20, n
         n_avg = 1000 // options.sequence_length
         
     activations, rate_map, g, pos = compute_ratemaps(model, trajectory_generator, polygon, options, res=res, n_avg=n_avg)
+
     rm_fig = plot_ratemaps(activations, n_plots=len(activations))
-    imdir = options.save_path + '/' + options.model_name
+    imdir = options.save_path + options.model_name
     imsave(imdir + "/" + str(step) + ".png", rm_fig)
 
 
@@ -168,7 +169,7 @@ def save_autocorr(sess, model, save_name, trajectory_generator, step, flags):
         res = utils.concat_dict(res, mb_res)
         
         filename = save_name + '/autocorrs_' + str(step) + '.pdf'
-        imdir = flags.save_path + options.model_name
+        imdir = flags.save_dir + '/'
         out = utils.get_scores_and_plot(
             latest_epoch_scorer, 
             res['pos_xy'], 

@@ -11,10 +11,10 @@ class Trainer(object):
 
     def __init__(self, options, model, trajectory_generator, polygon, restore=True):
 
-        self.polygon = polygon
         self.options = options
         self.model = model
         self.trajectory_generator = trajectory_generator
+        self.polygon = polygon
 
         lr = self.options.learning_rate
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
@@ -106,7 +106,8 @@ class Trainer(object):
                 # Save checkpoint
                 ckpt_path = os.path.join(self.ckpt_dir, 'epoch_{}.pth'.format(epoch_idx))
                 torch.save(self.model.state_dict(), ckpt_path)
-                torch.save(self.model.state_dict(), os.path.join(self.ckpt_dir, 'most_recent_model.pth'))
+                torch.save(self.model.state_dict(), os.path.join(self.ckpt_dir,
+                                                                 'most_recent_model.pth'))
 
                 # Save a picture of rate maps
-                #save_ratemaps(model=self.model, trajectory_generator=self.trajectory_generator, polygon=self.polygon, options=self.options, step=epoch_idx)
+                save_ratemaps(model=self.model, trajectory_generator=self.trajectory_generator, polygon=self.polygon, options=self.options, step=epoch_idx)

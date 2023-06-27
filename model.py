@@ -25,12 +25,8 @@ class RNN(torch.nn.Module):
             )
         
         # recurrent layer
-
-        us = place_cells.us
-        input_size = us.shape[1]
-
         self.RNN = torch.nn.RNN(
-            input_size=input_size, 
+            input_size=2, 
             hidden_size=self.Ng, 
             nonlinearity=options.activation, 
             bias=False
