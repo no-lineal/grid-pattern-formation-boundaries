@@ -5,6 +5,8 @@ import numpy as np
 from visualize import save_ratemaps
 import os
 
+import json
+
 torch.autograd.set_detect_anomaly(True)
 
 class Trainer(object):
@@ -84,8 +86,10 @@ class Trainer(object):
 
         # tbar = tqdm(range(n_steps), leave=False)
 
+        loss_dict = {}
         for epoch_idx in range(n_epochs):
             
+            loss_dict[ epoch_idx ] = {}
             for step_idx in range(n_steps):
 
                 inputs, pc_outputs, pos = next(gen)
@@ -101,6 +105,8 @@ class Trainer(object):
                 print('Epoch: {}/{}. Step {}/{}. Loss: {}. Err: {}cm'.format(
                     epoch_idx + 1, n_epochs, step_idx + 1, n_steps,
                     np.round(loss, 2), np.round(100 * err, 2)))
+                
+                loss_dict[ epoch_idx ][ step_idx ] = { 'loss': loss, 'err': err }
 
             if save:
                 # Save checkpoint
@@ -111,3 +117,7 @@ class Trainer(object):
 
                 # Save a picture of rate maps
                 save_ratemaps(model=self.model, trajectory_generator=self.trajectory_generator, polygon=self.polygon, options=self.options, step=epoch_idx)
+
+        # Save loss and error
+        with open( os.path.join( self.ckpt_dir, 'loss.json' ), 'w' ) as f:
+            json.dump( loss_dict, f )

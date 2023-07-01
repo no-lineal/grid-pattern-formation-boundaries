@@ -1,3 +1,4 @@
+import numpy as np
 import math
 from shapely.geometry import Polygon, Point
 
@@ -39,6 +40,33 @@ def trapezoid( box_width, box_height ):
     
     return trapezoid
 
+def hall_square( box_width, box_height ):
+
+    sh = np.round( box_width / 3, 2 )
+    sw = (box_width - sh) / 2
+
+    a = sh * sw 
+    x = a / box_width
+
+    hall_square = Polygon(
+        [
+            (-box_width/2 - x, -box_height/2), 
+            (-box_width/2 - x, box_height/2), 
+            (-sh/2, box_height/2), 
+            (-sh/2, box_height/2 - sw), 
+            (sh/2, box_height/2 - sw),
+            (sh/2, box_height/2), 
+            (box_width/2 + x, box_height/2),
+            (box_width/2 + x, -box_height/2), 
+            (sh/2, -box_height/2),
+            (sh/2, -box_height/2 + sw),
+            (-sh/2, -box_height/2 + sw),
+            (-sh/2, -box_height/2)
+        ]
+    )
+    
+    return hall_square
+
 def get_polygon( polygon ):
 
     if polygon == 'square':
@@ -52,3 +80,7 @@ def get_polygon( polygon ):
     elif polygon == 'trapezoid':
 
         return trapezoid( 2.2, 2.2 )
+    
+    elif polygon == 'hall_square':
+
+        return hall_square( 4.4, 4.4 )

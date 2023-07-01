@@ -1,0 +1,28 @@
+{
+    "shape": "hall_square",
+    "directories": {
+        "model_name": "200_2000_hall_square/"
+    }, 
+    "place_cell_parameters": {
+        "Np": 1024, 
+        "sigma": 0.12, 
+        "surround_scale": 2.0, 
+        "periodic": false, 
+        "DoG": true
+    },
+    "trajectory_parameters": {
+        "sequence_length": 20,
+        "batch_size": 400
+    }, 
+    "grid_cells_parameters": {
+        "Ng": 8192
+    },
+    "model_parameters": {
+        "RNN_type": "RNN",
+        "weight_decay": 1e-4,
+        "activation": "relu",
+        "learning_rate": 1e-4,
+        "n_epochs": 200,
+        "n_steps": 2000
+    }
+}
