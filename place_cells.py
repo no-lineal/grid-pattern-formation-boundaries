@@ -92,9 +92,9 @@ class PlaceCells(object):
             outputs -= self.softmax(-norm2/(2*self.surround_scale*self.sigma**2))
 
             # Shift and scale outputs so that they lie in [0,1].
-            #min_output,_ = outputs.min(-1,keepdims=True)
-            #outputs += torch.abs(min_output)
-            #outputs /= outputs.sum(-1, keepdims=True)
+            min_output,_ = outputs.min(-1,keepdims=True)
+            outputs += torch.abs(min_output)
+            outputs /= outputs.sum(-1, keepdims=True)
 
         return outputs
 
@@ -125,8 +125,13 @@ class PlaceCells(object):
 
         """
 
-        coordsx = np.linspace(-self.box_width/2, self.box_width/2, res)
-        coordsy = np.linspace(-self.box_height/2, self.box_height/2, res)
+        min_x, min_y, max_x, max_y = self.polygon.bounds
+
+        width = max_x - min_x
+        height = max_y - min_y
+
+        coordsx = np.linspace(-width/2, width/2, res)
+        coordsy = np.linspace(-height/2, height/2, res)
 
         grid_x, grid_y = np.meshgrid(coordsx, coordsy)
         grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
@@ -152,10 +157,15 @@ class PlaceCells(object):
         
         """
 
+        min_x, min_y, max_x, max_y = self.polygon.bounds
+
+        width = max_x - min_x
+        height = max_y - min_y
+
         pos = np.array(
             np.meshgrid(
-                np.linspace( -self.box_width/2, self.box_width/2, res),
-                np.linspace( -self.box_height/2, self.box_height/2, res)
+                np.linspace( -width/2, width/2, res),
+                np.linspace( -height/2, height/2, res)
             )
         ).T
 
