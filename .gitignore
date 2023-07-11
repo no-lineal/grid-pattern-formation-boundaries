@@ -116,7 +116,7 @@ venv.bak/
 
 # by user
 saved
-*.ipynb
+# *.ipynb
 *.zip
 
 *.DS_Store*

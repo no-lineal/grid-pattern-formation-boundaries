@@ -20,7 +20,7 @@ def generate_options( parameters ):
 
     # directories
 
-    load_path = os.getcwd() + '/pre_computed/'
+    load_path = os.getcwd() + '/precomputed/'
     save_path = os.getcwd() + '/output/'
 
     parser = argparse.ArgumentParser()

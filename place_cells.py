@@ -92,9 +92,9 @@ class PlaceCells(object):
             outputs -= self.softmax(-norm2/(2*self.surround_scale*self.sigma**2))
 
             # Shift and scale outputs so that they lie in [0,1].
-            min_output,_ = outputs.min(-1,keepdims=True)
-            outputs += torch.abs(min_output)
-            outputs /= outputs.sum(-1, keepdims=True)
+            #min_output,_ = outputs.min(-1,keepdims=True)
+            #outputs += torch.abs(min_output)
+            #outputs /= outputs.sum(-1, keepdims=True)
 
         return outputs
 
