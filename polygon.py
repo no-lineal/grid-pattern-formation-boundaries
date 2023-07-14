@@ -67,6 +67,14 @@ def hall_square( box_width, box_height ):
     
     return hall_square
 
+def circle( radius ):
+
+    center = Point(0, 0)
+
+    circle = center.buffer( radius * 2 )
+
+    return circle
+
 def get_polygon( polygon ):
 
     if polygon == 'square':
@@ -84,3 +92,11 @@ def get_polygon( polygon ):
     elif polygon == 'hall_square':
 
         return hall_square( 4.4, 4.4 )
+    
+    elif polygon == 'circle':
+
+        return circle( 1.1 )
+    
+    else:
+
+        raise ValueError( 'Invalid polygon.' )

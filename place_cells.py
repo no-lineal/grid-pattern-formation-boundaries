@@ -54,10 +54,8 @@ class PlaceCells(object):
 
 
     def get_activation(self, pos):
-        
 
-        '''
-
+        """
         Get place cell activations for a given position.
 
         Args:
@@ -65,13 +63,12 @@ class PlaceCells(object):
 
         Returns:
             outputs: Place cell activations with shape [batch_size, sequence_length, Np].
-
-        '''
+        """
 
         d = torch.abs(pos[:, :, None, :] - self.us[None, None, ...]).float()
 
         if self.periodic:
-            
+
             dx = d[:,:,:,0]
             dy = d[:,:,:,1]
             dx = torch.minimum(dx, self.box_width - dx) 
@@ -92,10 +89,10 @@ class PlaceCells(object):
             outputs -= self.softmax(-norm2/(2*self.surround_scale*self.sigma**2))
 
             # Shift and scale outputs so that they lie in [0,1].
-            #min_output,_ = outputs.min(-1,keepdims=True)
-            #outputs += torch.abs(min_output)
-            #outputs /= outputs.sum(-1, keepdims=True)
-
+            min_output,_ = outputs.min(-1,keepdims=True)
+            outputs += torch.abs(min_output)
+            outputs /= outputs.sum(-1, keepdims=True)
+            
         return outputs
 
     def get_nearest_cell_pos(self, activation, k=3):
