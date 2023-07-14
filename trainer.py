@@ -102,8 +102,7 @@ class Trainer(object):
                 # Save checkpoint
                 ckpt_path = os.path.join(self.ckpt_dir, 'epoch_{}.pth'.format(epoch_idx))
                 torch.save(self.model.state_dict(), ckpt_path)
-                torch.save(self.model.state_dict(), os.path.join(self.ckpt_dir,
-                                                                 'most_recent_model.pth'))
+                torch.save(self.model.state_dict(), os.path.join(self.ckpt_dir, 'most_recent_model.pth'))
 
                 # Save a picture of rate maps
-                save_ratemaps(self.model, self.trajectory_generator, self.options, step=epoch_idx)
+                save_ratemaps(model=self.model, trajectory_generator=self.trajectory_generator, polygon=self.polygon, options=self.options, step=epoch_idx)
