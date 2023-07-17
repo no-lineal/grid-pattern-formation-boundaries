@@ -13,6 +13,8 @@ import json
 import os
 import argparse
 
+from shapely.geometry import MultiPolygon
+
 # viz
 from matplotlib import pyplot as plt
 
@@ -69,28 +71,42 @@ def generate_options( parameters ):
 
 def plot_place_cells( place_cells, polygon, options ):
 
-    # place cell centers
-    us = place_cells.us
+    if isinstance( polygon, MultiPolygon ):
 
-    plt.figure(figsize=(5,5))
+        exterior_coords = polygon.exterior
 
-    try:
+        fig, ax = plt.subplots()
+        patch = plt.Polygon(polygon_exterior.coords, fc='blue', alpha=0.3)
+        ax.add_patch(patch)
 
-        exterior_coords = polygon.exterior.xy
-        interior_coords = [interior_ring.coords.xy for interior_ring in polygon.interiors]
+        ax.set_aspect('equal')
 
-        plt.plot(*exterior_coords, color='blue', alpha=0.5, label='Exterior')
+        plt.show()
 
-        for interior_coords_ring in interior_coords:
-            plt.plot(*interior_coords_ring, color='red', alpha=0.5, label='Interior')
+    else:
 
-    except:
+        # place cell centers
+        us = place_cells.us
 
-        exterior_coords = polygon.exterior.xy
-        plt.fill(*exterior_coords, color='blue', alpha=0.5, label='Exterior')
+        plt.figure(figsize=(5,5))
 
-    plt.scatter( us.cpu()[:,0], us.cpu()[:,1], c='lightgrey', label='Place cell centers' )
-    plt.savefig( options.save_path + options.model_name + 'place_cells.png' )
+        try:
+
+            exterior_coords = polygon.exterior.xy
+            interior_coords = [interior_ring.coords.xy for interior_ring in polygon.interiors]
+
+            plt.plot(*exterior_coords, color='blue', alpha=0.5, label='Exterior')
+
+            for interior_coords_ring in interior_coords:
+                plt.plot(*interior_coords_ring, color='red', alpha=0.5, label='Interior')
+
+        except:
+
+            exterior_coords = polygon.exterior.xy
+            plt.fill(*exterior_coords, color='blue', alpha=0.5, label='Exterior')
+
+        plt.scatter( us.cpu()[:,0], us.cpu()[:,1], c='lightgrey', label='Place cell centers' )
+        plt.savefig( options.save_path + options.model_name + 'place_cells.png' )
 
 def plot_trajectory( place_cells, trajectory_generator, polygon, options ):
 
@@ -169,6 +185,8 @@ if __name__ == '__main__':
     # model
     model = RNN( options, place_cells )
     model = model.to( options.device )
+
+    print( model )
 
     # trainer
     trainer = Trainer( options, model, trajectory_generator, polygon=polygon )

@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from shapely.geometry import Polygon, Point
+from shapely.geometry import Polygon, Point, LineString
 
 def square( box_width, box_height ):
 
@@ -75,6 +75,20 @@ def circle( radius ):
 
     return circle
 
+def hall_circle( radius ):
+
+    center1 = Point(-2.2, 0)
+    center2 = Point(2.2, 0)
+
+    circle1 = center1.buffer( radius * 2 )
+    circle2 = center2.buffer( radius * 2 )
+
+    hall = LineString( [center1, center2] )
+
+    polygon = circle1.union(circle2).union(hall.buffer(0))
+
+    return polygon
+
 def get_polygon( polygon ):
 
     if polygon == 'square':
@@ -96,6 +110,10 @@ def get_polygon( polygon ):
     elif polygon == 'circle':
 
         return circle( 1.1 )
+    
+    elif polygon == 'hall_circle':
+
+        return hall_circle( 1.1 )
     
     else:
 

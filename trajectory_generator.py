@@ -41,10 +41,9 @@ class TrajectoryGenerator(object):
         points = [ ( x, y ) for x, y in zip( position[:,0], position[:,1] ) ] 
         sides = list( self.polygon.exterior.coords )
 
-        if len( sides ) != 100:
-            sides = sides[ ::-1 ] 
-            idx = 1
-            sides = sides[ idx :  ] + sides[ 1 : idx + 1 ]
+        sides = sides[ ::-1 ] 
+        idx = 1
+        sides = sides[ idx :  ] + sides[ 1 : idx + 1 ]
 
         dists = []
         for p in points:
@@ -166,12 +165,6 @@ class TrajectoryGenerator(object):
             # Rotate head direction
             head_direction[:, t + 1] = head_direction[:, t] + turn_angle
 
-        # Periodic boundaries
-        #if self.options.periodic:
-
-        #    position[:, :, 0] = np.mod(position[:, :, 0] + box_width / 2, box_width) - box_width / 2
-        #    position[:, :, 1] = np.mod(position[:, :, 1] + box_height / 2, box_height) - box_height / 2
-
         head_direction = np.mod(head_direction + np.pi, 2 * np.pi) - np.pi  # Periodic variable
 
         traj = {}
@@ -203,24 +196,35 @@ class TrajectoryGenerator(object):
 
             batch_size = self.options.batch_size
 
-        n = 0
         while True:
 
             traj = self.generate_trajectory(batch_size)
 
-            v = np.stack([traj['ego_v'] * np.cos(traj['target_hd']),
-                          traj['ego_v'] * np.sin(traj['target_hd'])], axis=-1)
+            # velocity
+            v = np.stack(
+                [
+                    traj['ego_v'] * np.cos(traj['target_hd']), 
+                    traj['ego_v'] * np.sin(traj['target_hd'])
+                ], 
+                axis=-1
+            )
+
             v = torch.tensor(v, dtype=torch.float32).transpose(0, 1)
 
+            # position
             pos = np.stack([traj['target_x'], traj['target_y']], axis=-1)
             pos = torch.tensor(pos, dtype=torch.float32).transpose(0, 1)
-            # Put on GPU if GPU is available
             pos = pos.to(self.options.device)
+
+            # activation
             place_outputs = self.place_cells.get_activation(pos)
 
-            init_pos = np.stack([traj['init_x'], traj['init_y']], axis=-1)
+            # initial position
+            init_pos = np.stack( [ traj['init_x'], traj['init_y'] ] , axis=-1 )
             init_pos = torch.tensor(init_pos, dtype=torch.float32)
             init_pos = init_pos.to(self.options.device)
+
+            # initial activation
             init_actv = self.place_cells.get_activation(init_pos).squeeze()
 
             v = v.to(self.options.device)
@@ -239,9 +243,6 @@ class TrajectoryGenerator(object):
             #        plt.legend()
 
             #plt.savefig( self.options.save_dir + 'trajectories/' + 'trajectories_' + str(n) + '.png' )
-            #
-
-            n += 1
 
             yield (inputs, place_outputs, pos)
 
@@ -258,8 +259,13 @@ class TrajectoryGenerator(object):
         traj = self.generate_trajectory(batch_size)
 
         # velocity
-        v = np.stack([traj['ego_v'] * np.cos(traj['target_hd']),
-                      traj['ego_v'] * np.sin(traj['target_hd'])], axis=-1)
+        v = np.stack(
+            [
+                traj['ego_v'] * np.cos(traj['target_hd']), 
+                traj['ego_v'] * np.sin(traj['target_hd'])
+            ], 
+            axis=-1
+        )
 
         v = torch.tensor(v, dtype=torch.float32).transpose(0, 1)
 

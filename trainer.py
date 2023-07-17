@@ -5,8 +5,6 @@ import numpy as np
 from visualize import save_ratemaps
 import os
 
-import json
-
 torch.autograd.set_detect_anomaly(True)
 
 class Trainer(object):
@@ -27,7 +25,9 @@ class Trainer(object):
         # Set up checkpoints
 
         self.ckpt_dir = os.path.join(options.save_path, options.model_name)
-        ckpt_path = os.path.join(self.ckpt_dir, 'most_recent_model.pth')
+
+        ###
+        #ckpt_path = os.path.join(self.ckpt_dir, 'most_recent_model.pth')
 
         #if restore and os.path.isdir(self.ckpt_dir) and os.path.isfile(ckpt_path):
 
@@ -37,6 +37,8 @@ class Trainer(object):
         #else:
 
         #    if not os.path.isdir(self.ckpt_dir):
+        ###
+
         os.makedirs(self.ckpt_dir, exist_ok=True)
 
         print("Initializing new model from scratch.")
@@ -88,6 +90,7 @@ class Trainer(object):
                 
                 inputs, pc_outputs, pos = next(gen)
                 loss, err = self.train_step(inputs, pc_outputs, pos)
+
                 self.loss.append(loss)
                 self.err.append(err)
 
@@ -99,6 +102,7 @@ class Trainer(object):
                     np.round(loss, 2), np.round(100 * err, 2)))
 
             if save:
+                
                 # Save checkpoint
                 ckpt_path = os.path.join(self.ckpt_dir, 'epoch_{}.pth'.format(epoch_idx))
                 torch.save(self.model.state_dict(), ckpt_path)

@@ -15,29 +15,19 @@ class RNN(torch.nn.Module):
         self.weight_decay = options.weight_decay # regularization
         self.place_cells = place_cells # place cell matrix, Npx2
 
-        # Input weights
-
         # linear input layer
-        self.encoder = torch.nn.Linear(
-            in_features=self.Np, 
-            out_features=self.Ng, 
-            bias=False
-            )
+        self.encoder = torch.nn.Linear(self.Np, self.Ng, bias=False)
         
         # recurrent layer
         self.RNN = torch.nn.RNN(
-            input_size=2, 
-            hidden_size=self.Ng, 
-            nonlinearity=options.activation, 
+            input_size=2,
+            hidden_size=self.Ng,
+            nonlinearity=options.activation,
             bias=False
-            )
+        )
 
         # linear read-out weights
-        self.decoder = torch.nn.Linear(
-            in_features=self.Ng, 
-            out_features=self.Np, 
-            bias=False
-            )
+        self.decoder = torch.nn.Linear(self.Ng, self.Np, bias=False)
         
         # output layer (probability distribution)
         self.softmax = torch.nn.Softmax(dim=-1)
@@ -99,14 +89,12 @@ class RNN(torch.nn.Module):
 
         """
 
-        eps = 1e-38
-
         y = pc_outputs
 
         preds = self.predict(inputs)
         yhat = self.softmax( preds )
 
-        loss = -( y * torch.log(yhat + eps) ).sum(-1).mean()
+        loss = -( y * torch.log(yhat) ).sum(-1).mean()
 
         # Weight regularization 
         loss += self.weight_decay * (self.RNN.weight_hh_l0**2).sum()

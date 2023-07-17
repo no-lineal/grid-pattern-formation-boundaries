@@ -67,14 +67,6 @@ class PlaceCells(object):
 
         d = torch.abs(pos[:, :, None, :] - self.us[None, None, ...]).float()
 
-        if self.periodic:
-
-            dx = d[:,:,:,0]
-            dy = d[:,:,:,1]
-            dx = torch.minimum(dx, self.box_width - dx) 
-            dy = torch.minimum(dy, self.box_height - dy)
-            d = torch.stack([dx,dy], axis=-1)
-
         norm2 = (d**2).sum(-1)
 
         # Normalize place cell outputs with prefactor alpha=1/2/np.pi/self.sigma**2,
@@ -89,9 +81,9 @@ class PlaceCells(object):
             outputs -= self.softmax(-norm2/(2*self.surround_scale*self.sigma**2))
 
             # Shift and scale outputs so that they lie in [0,1].
-            min_output,_ = outputs.min(-1,keepdims=True)
-            outputs += torch.abs(min_output)
-            outputs /= outputs.sum(-1, keepdims=True)
+            min_output, _ = outputs.min(-1, keepdims=True)
+            outputs += torch.abs( min_output )
+            outputs /= outputs.sum( -1, keepdims=True )
             
         return outputs
 
@@ -109,6 +101,7 @@ class PlaceCells(object):
             pred_pos: Predicted 2d position with shape [batch_size, sequence_length, 2].
 
         """
+
         _, idxs = torch.topk(activation, k=k)
         pred_pos = self.us[idxs].mean(-2)
         
@@ -127,8 +120,8 @@ class PlaceCells(object):
         width = max_x - min_x
         height = max_y - min_y
 
-        coordsx = np.linspace(-width/2, width/2, res)
-        coordsy = np.linspace(-height/2, height/2, res)
+        coordsx = np.linspace( -width/2, width/2, res )
+        coordsy = np.linspace( -height/2, height/2, res )
 
         grid_x, grid_y = np.meshgrid(coordsx, coordsy)
         grid = np.stack([grid_x.ravel(), grid_y.ravel()]).T
@@ -161,8 +154,8 @@ class PlaceCells(object):
 
         pos = np.array(
             np.meshgrid(
-                np.linspace( -width/2, width/2, res),
-                np.linspace( -height/2, height/2, res)
+                np.linspace( -width/2, width/2, res ),
+                np.linspace( -height/2, height/2, res )
             )
         ).T
 
@@ -172,14 +165,15 @@ class PlaceCells(object):
         pos = pos.to(self.device)
 
         # maybe specify dimensions here again?
-        pc_outputs = self.get_activation( pos ).reshape( -1, self.Np ).cpu()
+        pc_outputs = self.get_activation(pos).reshape(-1, self.Np).cpu()
 
-        C = pc_outputs@pc_outputs.T # matrix multiplication
+        C = pc_outputs@pc_outputs.T
         Csquare = C.reshape(res, res, res, res)
 
         Cmean = np.zeros([res,res])
 
         for i in range(res):
+            
             for j in range(res):
 
                 Cmean += np.roll(np.roll(Csquare[i,j], -i, axis=0), -j, axis=1)

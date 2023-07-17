@@ -1,7 +1,7 @@
 {
     "shape": "square",
     "directories": {
-        "model_name": "100_1000_square/"
+        "model_name": "200_2000_square/"
     }, 
     "place_cell_parameters": {
         "Np": 512, 
@@ -22,7 +22,7 @@
         "weight_decay": 1e-4,
         "activation": "relu",
         "learning_rate": 1e-4,
-        "n_epochs": 100,
-        "n_steps": 1000
+        "n_epochs": 200,
+        "n_steps": 2000
     }
 }
