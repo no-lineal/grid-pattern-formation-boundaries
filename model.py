@@ -89,12 +89,14 @@ class RNN(torch.nn.Module):
 
         """
 
+        eps = 1e-38
+
         y = pc_outputs
 
         preds = self.predict(inputs)
         yhat = self.softmax( preds )
 
-        loss = -( y * torch.log(yhat) ).sum(-1).mean()
+        loss = -( y * torch.log(yhat + eps) ).sum(-1).mean()
 
         # Weight regularization 
         loss += self.weight_decay * (self.RNN.weight_hh_l0**2).sum()
