@@ -4,7 +4,7 @@
         "model_name": "200_2000_hall_square/"
     }, 
     "place_cell_parameters": {
-        "Np": 1024, 
+        "Np": 512, 
         "sigma": 0.12, 
         "surround_scale": 2.0, 
         "periodic": false, 
@@ -15,7 +15,7 @@
         "batch_size": 400
     }, 
     "grid_cells_parameters": {
-        "Ng": 8192
+        "Ng": 4096
     },
     "model_parameters": {
         "RNN_type": "RNN",
