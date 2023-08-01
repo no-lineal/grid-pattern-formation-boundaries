@@ -105,7 +105,7 @@ def get_polygon( polygon ):
     
     elif polygon == 'hall_square':
 
-        return hall_square( 4.4, 4.4 )
+        return hall_square( 2.2, 2.2 )
     
     elif polygon == 'circle':
 
