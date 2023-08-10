@@ -109,7 +109,7 @@ def get_polygon( polygon ):
     
     elif polygon == 'circle':
 
-        return circle( np.sqrt( (2.2**2) / np.pi ) )
+        return circle( np.sqrt( 4.84 / np.pi ) )
     
     elif polygon == 'hall_circle':
 
