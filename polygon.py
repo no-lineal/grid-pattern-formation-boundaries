@@ -71,7 +71,7 @@ def circle( radius ):
 
     center = Point(0, 0)
 
-    circle = center.buffer( radius * 2 )
+    circle = center.buffer( radius )
 
     return circle
 
