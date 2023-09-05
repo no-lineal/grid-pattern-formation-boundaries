@@ -27,30 +27,38 @@ class PlaceCells(object):
         # random seed
         np.random.seed( 0 )
 
-        min_x, min_y, max_x, max_y = self.polygon.bounds
+        if options.precomputed_place_cells:
 
-        width = max_x - min_x
-        height = max_y - min_y
+            self.us = torch.tensor( np.load( self.load_path + 'place_cells/pc_centers.npy' ) ).to( self.device )
 
-        points = []
-        while len(points) < self.Np:
-                
-            x = np.random.uniform(-width/2, width/2)
-            y = np.random.uniform(-height/2, height/2)
+            print( '-' * 10 + 'using precomputed place cells' + '-' * 10 )
 
-            point = Point( x, y )
+        else:
 
-            if self.polygon.contains( point ):
+            min_x, min_y, max_x, max_y = self.polygon.bounds
+
+            width = max_x - min_x
+            height = max_y - min_y
+
+            points = []
+            while len(points) < self.Np:
                     
-                points.append( point )
+                x = np.random.uniform(-width/2, width/2)
+                y = np.random.uniform(-height/2, height/2)
 
-        self.us = torch.tensor(
-            np.array( 
-                [ [ point.x, point.y ] for point in points ]
+                point = Point( x, y )
+
+                if self.polygon.contains( point ):
+                        
+                    points.append( point )
+
+            self.us = torch.tensor(
+                np.array( 
+                    [ [ point.x, point.y ] for point in points ]
+                )
             )
-        )
 
-        self.us = self.us.to( self.device )
+            self.us = self.us.to( self.device )
 
 
     def get_activation(self, pos):

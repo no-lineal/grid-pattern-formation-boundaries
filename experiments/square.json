@@ -1,14 +1,15 @@
 {
     "shape": "square",
     "directories": {
-        "model_name": "200_2000_square/"
+        "model_name": "100_10000_square_precomputed_pc/"
     }, 
     "place_cell_parameters": {
         "Np": 512, 
         "sigma": 0.12, 
         "surround_scale": 2.0, 
         "periodic": false, 
-        "DoG": true
+        "DoG": true,
+        "precomputed_place_cells": true
     },
     "trajectory_parameters": {
         "sequence_length": 20,
@@ -22,7 +23,7 @@
         "weight_decay": 1e-4,
         "activation": "relu",
         "learning_rate": 1e-4,
-        "n_epochs": 200,
-        "n_steps": 2000
+        "n_epochs": 100,
+        "n_steps": 10000
     }
 }
