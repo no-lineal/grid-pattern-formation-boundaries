@@ -15,16 +15,18 @@ def square( box_width, box_height ):
     
     return square
 
-def triangle( width, height ):
+def triangle( area, height ):
 
-    triangle = Polygon(
-        [
-            ( -width/2, -height/2 ), 
-            (0, width/2), 
-            ( width/2, -height/2 )
-        ]
-    )
-    
+    base = ( 2 * area ) / height
+
+    vertices =[
+        (0, height/2), 
+        (-base/2, -height/2),
+        (base/2, -height/2)
+    ]
+
+    triangle = Polygon( vertices )
+
     return triangle
 
 def trapezoid( box_width, box_height ):
@@ -75,19 +77,22 @@ def circle( radius ):
 
     return circle
 
-def hall_circle( radius ):
+def pentagon( area ):
 
-    center1 = Point(-2.2, 0)
-    center2 = Point(2.2, 0)
+    side_lenght = np.sqrt( ( 4 * area ) / ( 5 * np.tan( np.pi / 5 ) ) )
 
-    circle1 = center1.buffer( radius * 2 )
-    circle2 = center2.buffer( radius * 2 )
+    vertices = []
 
-    hall = LineString( [center1, center2] )
+    for i in range( 5 ):
 
-    polygon = circle1.union(circle2).union(hall.buffer(0))
+        x = side_lenght * np.cos( 2 * np.pi * i / 5 )
+        y = side_lenght * np.sin( 2 * np.pi * i / 5 )
 
-    return polygon
+        vertices.append( (x, y) )
+
+    pentagon = Polygon( vertices )
+
+    return pentagon
 
 def get_polygon( polygon ):
 
@@ -95,9 +100,13 @@ def get_polygon( polygon ):
 
         return square( 2.2, 2.2 )
     
+    elif polygon == 'rectangle':
+
+        return square( 4.4, 1.1 )
+    
     elif polygon == 'triangle':
 
-        return triangle( 2.2, 2.2 )
+        return triangle( (2.2 ** 2), 2.2 )
     
     elif polygon == 'trapezoid':
 
@@ -111,9 +120,9 @@ def get_polygon( polygon ):
 
         return circle( np.sqrt( 4.84 / np.pi ) )
     
-    elif polygon == 'hall_circle':
+    elif polygon == 'pentagon':
 
-        return hall_circle( 1.1 )
+        return pentagon( 2.2 ** 2 )
     
     else:
 
