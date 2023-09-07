@@ -79,7 +79,7 @@ def circle( radius ):
 
 def pentagon( area ):
 
-    side_lenght = np.sqrt( ( 4 * area ) / ( 5 * np.tan( np.pi / 5 ) ) )
+    side_lenght = np.sqrt( ( 4 * area ) / ( 5 * ( 5 + ( 2 * np.sqrt(5) ) ) ) )
 
     vertices = []
 
