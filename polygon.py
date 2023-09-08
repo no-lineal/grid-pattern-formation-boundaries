@@ -78,17 +78,16 @@ def circle( radius ):
     return circle
 
 def pentagon( area ):
-
-    side_lenght = np.sqrt( ( 4 * area ) / ( 5 * ( 5 + ( 2 * np.sqrt(5) ) ) ) )
+    
+    side_length = np.sqrt( (4 * area ) / ( np.sqrt( 5 * ( 5 + 2 * (np.sqrt(5)) ) ) ) )
 
     vertices = []
+    for i in range(5):
 
-    for i in range( 5 ):
-
-        x = side_lenght * np.cos( 2 * np.pi * i / 5 )
-        y = side_lenght * np.sin( 2 * np.pi * i / 5 )
-
-        vertices.append( (x, y) )
+        angle = 2 * math.pi / 5 * i  # Angle between each vertex
+        x = side_length * math.cos(angle)
+        y = side_length * math.sin(angle)
+        vertices.append((x, y))
 
     pentagon = Polygon( vertices )
 

@@ -1,7 +1,7 @@
 {
     "shape": "pentagon",
     "directories": {
-        "model_name": "pentagon_200_2000/"
+        "model_name": "pentagon_100_10000/"
     }, 
     "place_cell_parameters": {
         "Np": 512, 
@@ -23,7 +23,7 @@
         "weight_decay": 1e-4,
         "activation": "relu",
         "learning_rate": 1e-4,
-        "n_epochs": 200,
-        "n_steps": 2000
+        "n_epochs": 100,
+        "n_steps": 10000
     }
 }

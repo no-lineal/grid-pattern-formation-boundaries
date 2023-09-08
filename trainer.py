@@ -109,4 +109,4 @@ class Trainer(object):
                 torch.save(self.model.state_dict(), os.path.join(self.ckpt_dir, 'most_recent_model.pth'))
 
                 # Save a picture of rate maps
-                save_ratemaps(model=self.model, trajectory_generator=self.trajectory_generator, polygon=self.polygon, options=self.options, step=epoch_idx)
+                #save_ratemaps(model=self.model, trajectory_generator=self.trajectory_generator, polygon=self.polygon, options=self.options, step=epoch_idx)
