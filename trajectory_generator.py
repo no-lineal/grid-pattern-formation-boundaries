@@ -3,6 +3,8 @@ import torch
 import os
 import numpy as np
 
+from tqdm import tqdm
+
 from shapely.geometry import Point, LineString
 
 # viz
@@ -152,7 +154,7 @@ class TrajectoryGenerator(object):
 
                 # If in border region, turn and slow down
                 is_near_wall, turn_angle = self.avoid_wall(position[:, t], head_direction[:, t])
-                v[is_near_wall] *= 0.25
+                v[ is_near_wall ] *= 0.025
 
             # Update turn angle
             turn_angle += dt * random_turn[:, t]
@@ -164,6 +166,14 @@ class TrajectoryGenerator(object):
 
             # Rotate head direction
             head_direction[:, t + 1] = head_direction[:, t] + turn_angle
+
+            aux = [ Point(x).within( self.polygon ) for x in position[:, t + 1] ]
+            idx = [ i for i, v in enumerate( aux ) if v is False ]
+
+            if len( idx ) > 0:
+
+                position[ idx, t + 1 ] = position[ idx, t ] + ( -1 * update[ idx ] )
+                head_direction[ idx, t + 1 ] = head_direction[ idx, t ] + ( turn_angle[ idx ] + np.pi )
 
         head_direction = np.mod(head_direction + np.pi, 2 * np.pi) - np.pi  # Periodic variable
 

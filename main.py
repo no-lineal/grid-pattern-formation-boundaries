@@ -147,7 +147,12 @@ if __name__ == '__main__':
 
     # where am i?
     PATH = os.getcwd() + '/'
-    input_file = PATH + 'experiments/circle.json'
+
+    #input_file = PATH + 'experiments/01_square.json'
+    #input_file = PATH + 'experiments/02_hall_square.json'
+    #input_file = PATH + 'experiments/03_pentagon.json'
+    #input_file = PATH + 'experiments/04_triangle.json'
+    input_file = PATH + 'experiments/05_circle.json'
 
     print(f'PATH: {PATH}')
     print(f'experiment: {input_file}')

@@ -98,7 +98,7 @@ class Trainer(object):
                 # tbar.set_description('Error = ' + str(np.int(100*err)) + 'cm')
 
                 print('Epoch: {}/{}. Step {}/{}. Loss: {}. Err: {}cm'.format(
-                    epoch_idx, n_epochs, step_idx, n_steps,
+                    epoch_idx + 1, n_epochs, step_idx + 1, n_steps,
                     np.round(loss, 2), np.round(100 * err, 2)))
 
             if save:

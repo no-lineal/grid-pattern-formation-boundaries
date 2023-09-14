@@ -1,7 +1,7 @@
 {
     "shape": "square",
     "directories": {
-        "model_name": "100_10000_square_precomputed_pc/"
+        "model_name": "square_precomputed_100_10000_pc/"
     }, 
     "place_cell_parameters": {
         "Np": 512, 
