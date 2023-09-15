@@ -166,6 +166,12 @@ if __name__ == '__main__':
 
     print( options.__dict__ )
 
+    if options.device == 'cuda':
+
+        n_devices = torch.cuda.device_count()
+
+        print( f'Number of devices: {n_devices}' )
+
     # create save directory
     try:
         os.mkdir( options.save_path + options.model_name )
@@ -192,7 +198,6 @@ if __name__ == '__main__':
     # model
     model = RNN( options, place_cells )
     model = model.to( options.device )
-
     print( model )
 
     # trainer
