@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import torch
+import torch.nn as nn
 
-class RNN(torch.nn.Module):
+class RNN(nn.Module):
 
     def __init__(self, options, place_cells):
 
@@ -16,10 +17,10 @@ class RNN(torch.nn.Module):
         self.place_cells = place_cells # place cell matrix, Npx2
 
         # linear input layer
-        self.encoder = torch.nn.Linear(self.Np, self.Ng, bias=False)
+        self.encoder = nn.Linear(self.Np, self.Ng, bias=False)
         
         # recurrent layer
-        self.RNN = torch.nn.RNN(
+        self.RNN = nn.RNN(
             input_size=2,
             hidden_size=self.Ng,
             nonlinearity=options.activation,
@@ -27,10 +28,10 @@ class RNN(torch.nn.Module):
         )
 
         # linear read-out weights
-        self.decoder = torch.nn.Linear(self.Ng, self.Np, bias=False)
+        self.decoder = nn.Linear(self.Ng, self.Np, bias=False)
         
         # output layer (probability distribution)
-        self.softmax = torch.nn.Softmax(dim=-1)
+        self.softmax = nn.Softmax(dim=-1)
 
     def g(self, inputs):
         
@@ -107,3 +108,16 @@ class RNN(torch.nn.Module):
         err = torch.sqrt(((pos - pred_pos)**2).sum(-1)).mean()
 
         return loss, err
+    
+class DistributedRNN( nn.Module ): 
+
+    def __init__( self, options, place_cells ):
+
+        super(DistributedRNN, self).__init__()
+
+        self.module = RNN( options, place_cells )
+        self.parallel_module = nn.DataParallel( self.module )
+
+    def forward( self, inputs ):
+
+        return self.parallel_module( *inputs )

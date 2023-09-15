@@ -5,7 +5,7 @@ from polygon import get_polygon
 from place_cells import PlaceCells
 from trajectory_generator import TrajectoryGenerator
 
-from model import RNN
+from model import RNN, DistributedRNN
 from trainer import Trainer
 
 import json
@@ -196,8 +196,15 @@ if __name__ == '__main__':
         plot_trajectory( place_cells, trajectory_generator, polygon, options )
 
     # model
-    model = RNN( options, place_cells )
-    model = model.to( options.device )
+    if options.device == 'cuda':
+
+        model = DistributedRNN( options, place_cells )
+
+    else:
+        
+        model = RNN( options, place_cells )
+        model = model.to( options.device )
+    
     print( model )
 
     # trainer
