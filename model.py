@@ -8,6 +8,8 @@ class RNN(nn.Module):
 
         super(RNN, self).__init__()
 
+        self.device = options.device
+
         self.Ng = options.Ng # number of grid cells
         self.Np = options.Np # number of place cells
 
@@ -89,6 +91,12 @@ class RNN(nn.Module):
             err: Avg. decoded position error in cm.
 
         """
+
+        if self.device != 'cpu':
+
+            inputs = inputs.to(self.device)
+            pc_outputs = pc_outputs.to(self.device)
+            pos = pos.to(self.device)
 
         eps = 1e-38
 
