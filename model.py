@@ -127,6 +127,7 @@ class DistributedRNN( nn.Module ):
         super(DistributedRNN, self).__init__()
 
         self.module = RNN( options, place_cells )
+        self.module = self.module.to( options.device )
         self.parallel_module = nn.DataParallel( self.module )
 
     def forward( self, inputs ):
