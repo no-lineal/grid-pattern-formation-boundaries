@@ -49,6 +49,12 @@ class RNN(nn.Module):
         """
 
         v, p0 = inputs
+
+        if self.device == 'cuda':
+
+            v = v.to( self.device )
+            p0 = p0.to( self.device )
+
         init_state = self.encoder(p0)[None]
         g, _ = self.RNN(v, init_state)
 
@@ -91,12 +97,6 @@ class RNN(nn.Module):
             err: Avg. decoded position error in cm.
 
         """
-
-        if self.device != 'cpu':
-
-            inputs = inputs.to(self.device)
-            pc_outputs = pc_outputs.to(self.device)
-            pos = pos.to(self.device)
 
         eps = 1e-38
 
