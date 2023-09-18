@@ -64,7 +64,13 @@ class Trainer(object):
 
         self.model.zero_grad()
 
-        loss, err = self.model.compute_loss(inputs, pc_outputs, pos)
+        if self.options.device == 'cuda':
+
+            loss, err = self.model.module.compute_loss(inputs, pc_outputs, pos)
+
+        else:
+
+            loss, err = self.model.compute_loss(inputs, pc_outputs, pos)
 
         loss.backward()
         self.optimizer.step()
