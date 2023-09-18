@@ -7,6 +7,8 @@ class RNN(torch.nn.Module):
 
         super(RNN, self).__init__()
 
+        self.device = options.device
+
         self.Ng = options.Ng # number of grid cells
         self.Np = options.Np # number of place cells
 
@@ -46,6 +48,11 @@ class RNN(torch.nn.Module):
         """
 
         v, p0 = inputs
+
+        if self.device == 'cuda':
+
+            v = v.to( self.device )
+            p0 = p0.to( self.device )
 
         print( f'in model: input size {p0.shape}' )
 

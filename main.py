@@ -196,7 +196,7 @@ if __name__ == '__main__':
         n_devices = torch.cuda.device_count()
         print( f'number of devices: { n_devices }' )
 
-        with open( options.save_path + options.model_name + '/' + 'n_devices.json' ) as f:
+        with open( options.save_path + 'n_devices.json', 'w' ) as f:
             
             f.write( json.dumps( { 'n_devices': n_devices } ) )
 
