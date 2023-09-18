@@ -54,8 +54,6 @@ class RNN(torch.nn.Module):
             v = v.to( self.device )
             p0 = p0.to( self.device )
 
-        print( f'in model: input size {p0.shape}' )
-
         init_state = self.encoder(p0)[None]
         g, _ = self.RNN(v, init_state)
 

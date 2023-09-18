@@ -201,8 +201,8 @@ if __name__ == '__main__':
             f.write( json.dumps( { 'n_devices': n_devices } ) )
 
         model = RNN( options, place_cells )
-        model = torch.nn.DataParallel( model )
-        model = model.to( options.device )
+        model = torch.nn.DataParallel( model, device_ids=list(range( n_devices )) )
+        #model = model.to( options.device )
     
     else:
 
