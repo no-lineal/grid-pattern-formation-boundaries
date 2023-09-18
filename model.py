@@ -55,9 +55,6 @@ class RNN(nn.Module):
             v = v.to( self.device )
             p0 = p0.to( self.device )
 
-        print( f'v: {v}' )
-        print( f'p0: {p0}')
-
         init_state = self.encoder(p0)[None]
         g, _ = self.RNN(v, init_state)
 
