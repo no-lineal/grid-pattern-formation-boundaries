@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 import torch
-import torch.nn as nn
 
-class RNN(nn.Module):
+class RNN(torch.nn.Module):
 
     def __init__(self, options, place_cells):
 
         super(RNN, self).__init__()
-
-        self.device = options.device
 
         self.Ng = options.Ng # number of grid cells
         self.Np = options.Np # number of place cells
@@ -19,10 +16,10 @@ class RNN(nn.Module):
         self.place_cells = place_cells # place cell matrix, Npx2
 
         # linear input layer
-        self.encoder = nn.Linear(self.Np, self.Ng, bias=False)
+        self.encoder = torch.nn.Linear(self.Np, self.Ng, bias=False)
         
         # recurrent layer
-        self.RNN = nn.RNN(
+        self.RNN = torch.nn.RNN(
             input_size=2,
             hidden_size=self.Ng,
             nonlinearity=options.activation,
@@ -30,10 +27,10 @@ class RNN(nn.Module):
         )
 
         # linear read-out weights
-        self.decoder = nn.Linear(self.Ng, self.Np, bias=False)
+        self.decoder = torch.nn.Linear(self.Ng, self.Np, bias=False)
         
         # output layer (probability distribution)
-        self.softmax = nn.Softmax(dim=-1)
+        self.softmax = torch.nn.Softmax(dim=-1)
 
     def g(self, inputs):
         
@@ -49,12 +46,6 @@ class RNN(nn.Module):
         """
 
         v, p0 = inputs
-
-        if self.device == 'cuda':
-
-            v = v.to( self.device )
-            p0 = p0.to( self.device )
-
         init_state = self.encoder(p0)[None]
         g, _ = self.RNN(v, init_state)
 
@@ -116,17 +107,3 @@ class RNN(nn.Module):
         err = torch.sqrt(((pos - pred_pos)**2).sum(-1)).mean()
 
         return loss, err
-    
-class DistributedRNN( nn.Module ): 
-
-    def __init__( self, options, place_cells ):
-
-        super(DistributedRNN, self).__init__()
-
-        self.module = RNN( options, place_cells )
-        self.module = self.module.to( options.device )
-        self.parallel_module = nn.DataParallel( self.module )
-
-    def forward( self, inputs ):
-
-        return self.parallel_module( *inputs )

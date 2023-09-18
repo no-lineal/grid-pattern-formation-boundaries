@@ -5,7 +5,7 @@ from polygon import get_polygon
 from place_cells import PlaceCells
 from trajectory_generator import TrajectoryGenerator
 
-from model import RNN, DistributedRNN
+from model import RNN
 from trainer import Trainer
 
 import json
@@ -166,12 +166,6 @@ if __name__ == '__main__':
 
     print( options.__dict__ )
 
-    if options.device == 'cuda':
-
-        n_devices = torch.cuda.device_count()
-
-        print( f'Number of devices: {n_devices}' )
-
     # create save directory
     try:
         os.mkdir( options.save_path + options.model_name )
@@ -196,15 +190,20 @@ if __name__ == '__main__':
         plot_trajectory( place_cells, trajectory_generator, polygon, options )
 
     # model
+
     if options.device == 'cuda':
 
-        model = DistributedRNN( options, place_cells )
+        print( f'number of devices: { torch.cuda.device_count() }' )
 
-    else:
-        
         model = RNN( options, place_cells )
+        model = torch.nn.DataParallel( model )
         model = model.to( options.device )
     
+    else:
+
+        model = RNN( options, place_cells )
+        model = model.to( options.device )
+
     print( model )
 
     # trainer
