@@ -202,7 +202,7 @@ if __name__ == '__main__':
 
         model = RNN( options, place_cells )
         model = torch.nn.DataParallel( model, device_ids=list(range( n_devices )) )
-        #model = model.to( options.device )
+        model = model.to( options.device )
     
     else:
 
