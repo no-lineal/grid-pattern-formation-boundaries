@@ -5,6 +5,8 @@ import numpy as np
 from visualize import save_ratemaps
 import os
 
+from tqdm import tqdm
+
 torch.autograd.set_detect_anomaly(True)
 
 class Trainer(object):
@@ -92,9 +94,16 @@ class Trainer(object):
 
         # tbar = tqdm(range(n_steps), leave=False)
         for epoch_idx in range(n_epochs):
-            for step_idx in range(n_steps):
+            for step_idx in tqdm( range(n_steps) ):
                 
                 inputs, pc_outputs, pos = next(gen)
+                
+                #print( f'inputs type: { type(inputs[0]), type(inputs[1]) }' )
+
+                inputs = ( torch.tensor(inputs[0]).float().to(self.options.device), torch.tensor(inputs[1]).float().to(self.options.device) )
+
+                #print( f'inputs type: { type(inputs[0]), type(inputs[1]) }' )
+
                 loss, err = self.train_step(inputs, pc_outputs, pos)
 
                 self.loss.append(loss)
@@ -103,9 +112,9 @@ class Trainer(object):
                 # Log error rate to progress bar
                 # tbar.set_description('Error = ' + str(np.int(100*err)) + 'cm')
 
-                print('Epoch: {}/{}. Step {}/{}. Loss: {}. Err: {}cm'.format(
-                    epoch_idx + 1, n_epochs, step_idx + 1, n_steps,
-                    np.round(loss, 2), np.round(100 * err, 2)))
+                #print('Epoch: {}/{}. Step {}/{}. Loss: {}. Err: {}cm'.format(
+                #    epoch_idx + 1, n_epochs, step_idx + 1, n_steps,
+                #    np.round(loss, 2), np.round(100 * err, 2)))
 
             if save:
                 
