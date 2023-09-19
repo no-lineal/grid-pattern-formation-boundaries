@@ -54,6 +54,8 @@ class RNN(torch.nn.Module):
             v = v.to( self.device )
             p0 = p0.to( self.device )
 
+        print( f'p0 cuda: { p0.is_cuda() }' )
+        print( self.encoder( p0 ) )
         init_state = self.encoder(p0)[None]
         g, _ = self.RNN(v, init_state)
 
