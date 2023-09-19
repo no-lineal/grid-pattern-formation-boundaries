@@ -3,9 +3,10 @@ import torch
 import numpy as np
 
 from visualize import save_ratemaps
-import os
 
 from tqdm import tqdm
+
+import os
 
 torch.autograd.set_detect_anomaly(True)
 
@@ -66,13 +67,7 @@ class Trainer(object):
 
         self.model.zero_grad()
 
-        if self.options.device == 'cuda':
-
-            loss, err = self.model.module.compute_loss(inputs, pc_outputs, pos)
-
-        else:
-
-            loss, err = self.model.compute_loss(inputs, pc_outputs, pos)
+        loss, err = self.model.compute_loss(inputs, pc_outputs, pos)
 
         loss.backward()
         self.optimizer.step()
@@ -97,13 +92,6 @@ class Trainer(object):
             for step_idx in tqdm( range(n_steps) ):
                 
                 inputs, pc_outputs, pos = next(gen)
-                
-                #print( f'inputs type: { type(inputs[0]), type(inputs[1]) }' )
-
-                inputs = ( torch.tensor(inputs[0]).float().to(self.options.device), torch.tensor(inputs[1]).float().to(self.options.device) )
-
-                #print( f'inputs type: { type(inputs[0]), type(inputs[1]) }' )
-
                 loss, err = self.train_step(inputs, pc_outputs, pos)
 
                 self.loss.append(loss)

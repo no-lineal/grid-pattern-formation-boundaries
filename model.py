@@ -46,7 +46,6 @@ class RNN(torch.nn.Module):
         """
 
         v, p0 = inputs
-
         init_state = self.encoder(p0)[None]
         g, _ = self.RNN(v, init_state)
 

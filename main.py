@@ -191,23 +191,8 @@ if __name__ == '__main__':
 
     # model
 
-    if options.device == 'cuda':
-
-        n_devices = torch.cuda.device_count()
-        print( f'\nnumber of devices: { n_devices }\n' )
-
-        with open( options.save_path + 'n_devices.json', 'w' ) as f:
-            
-            f.write( json.dumps( { 'n_devices': n_devices } ) )
-
-        model = RNN( options, place_cells )
-        model = torch.nn.DataParallel( model )
-        model = model.to( options.device )
-    
-    else:
-
-        model = RNN( options, place_cells )
-        model = model.to( options.device )
+    model = RNN( options, place_cells )
+    model = model.to( options.device )
 
     print( model )
 
