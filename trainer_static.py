@@ -108,3 +108,10 @@ class Trainer(object):
                     self.err.append(err)
 
                     print( f'epoch: { epoch_idx + 1 }/{ n_epochs }, step: { step_idx + ( 10 * chunk_idx ) + 1 }/{ len( inputs_lst ) * len( inputs_chunk ) }, loss: { np.round(loss, 2) }, error: { np.round(100 * err, 2) } cm ' )
+
+            if save:
+
+                # Save checkpoint
+                ckpt_path = os.path.join(self.ckpt_dir, 'epoch_{}.pth'.format(epoch_idx))
+                torch.save(self.model.state_dict(), ckpt_path)
+                torch.save(self.model.state_dict(), os.path.join(self.ckpt_dir, 'most_recent_model.pth'))
