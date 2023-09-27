@@ -54,6 +54,6 @@ class TrajectoryStatic( object ):
                 pos_lst.append( pos )
 
             # save outputs
-            torch.save( inputs_lst, self.ckpt_dir + f'inputs_lst_{ epoch_idx }.pth' )
-            torch.save( pc_outputs_lst, self.ckpt_dir + f'pc_outputs_lst_{ epoch_idx }.pth' )
-            torch.save( pos_lst, self.ckpt_dir + f'pos_lst_{ epoch_idx }.pth' )
+            torch.save( inputs_lst, self.ckpt_dir + 'data/' + f'inputs_lst_{ epoch_idx }.pth' )
+            torch.save( pc_outputs_lst, self.ckpt_dir + 'data/' + f'pc_outputs_lst_{ epoch_idx }.pth' )
+            torch.save( pos_lst, self.ckpt_dir + 'data/' + f'pos_lst_{ epoch_idx }.pth' )

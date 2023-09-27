@@ -6,7 +6,7 @@ from place_cells import PlaceCells
 from trajectory_generator import TrajectoryGenerator
 
 from model import RNN
-from trainer import Trainer
+from trainer_static import Trainer
 
 import json
 

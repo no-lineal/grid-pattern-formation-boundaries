@@ -170,6 +170,7 @@ if __name__ == '__main__':
     # create save directory
     try:
         os.mkdir( options.save_path + options.model_name )
+        os.mkdir( options.save_path + options.model_name + 'data/' )
     except:
         pass
 
