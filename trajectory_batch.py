@@ -34,12 +34,12 @@ class TrajectoryStatic( object ):
         print( 'initialize trajectory generator' )
         print("Saving to: {}".format(self.ckpt_dir))
 
-    def trajectory_iterator( self, n_epochs: int = 1000, n_steps=10, save=True ):
+    def trajectory_iterator( self, n_chunks: int = 1000, n_steps=10, save=True ):
 
         # Construct generator
         gen = self.trajectory_generator.get_generator()
 
-        for epoch_idx in range(n_epochs):
+        for chunk_idx in range( n_chunks ):
 
             inputs_lst = []
             pc_outputs_lst = []
@@ -54,6 +54,6 @@ class TrajectoryStatic( object ):
                 pos_lst.append( pos )
 
             # save outputs
-            torch.save( inputs_lst, self.ckpt_dir + 'data/' + f'inputs_lst_{ epoch_idx }.pth' )
-            torch.save( pc_outputs_lst, self.ckpt_dir + 'data/' + f'pc_outputs_lst_{ epoch_idx }.pth' )
-            torch.save( pos_lst, self.ckpt_dir + 'data/' + f'pos_lst_{ epoch_idx }.pth' )
+            torch.save( inputs_lst, self.ckpt_dir + 'data/' + f'inputs_lst_{ chunk_idx }.pth' )
+            torch.save( pc_outputs_lst, self.ckpt_dir + 'data/' + f'pc_outputs_lst_{ chunk_idx }.pth' )
+            torch.save( pos_lst, self.ckpt_dir + 'data/' + f'pos_lst_{ chunk_idx }.pth' )

@@ -6,5 +6,4 @@
 
 source activate grid38
 
-python -B main_trajectory.py
 python -B main.py

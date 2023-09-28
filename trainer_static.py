@@ -88,15 +88,15 @@ class Trainer(object):
         pc_outputs_lst = sorted( [ x for x in os.listdir( self.ckpt_dir + 'data/' ) if 'pc_outputs' in x ] )
         pos_lst = sorted( [ x for x in os.listdir( self.ckpt_dir + 'data/' ) if 'pos' in x ] )
 
-        for epoch_idx in range(n_epochs):
+        for epoch_idx in tqdm(range(n_epochs)):
             
-            for chunk_idx in range( len( inputs_lst ) ):
+            for chunk_idx in tqdm(range( len( inputs_lst ) )):
 
                 inputs_chunk = torch.load( self.ckpt_dir + 'data/' + inputs_lst[ chunk_idx ] )
                 pc_outputs_chunk = torch.load( self.ckpt_dir + 'data/' + pc_outputs_lst[ chunk_idx ] )
                 pos_chunk = torch.load( self.ckpt_dir + 'data/' + pos_lst[ chunk_idx ] )
 
-                for step_idx in range( len( inputs_chunk ) ):
+                for step_idx in tqdm(range( len( inputs_chunk ) )):
 
                     inputs = inputs_chunk[ step_idx ]
                     pc_outputs = pc_outputs_chunk[ step_idx ]
@@ -106,9 +106,7 @@ class Trainer(object):
 
                     self.loss.append(loss)
                     self.err.append(err)
-
-                    print( f'epoch: { epoch_idx + 1 }/{ n_epochs }, step: { step_idx + ( 10 * chunk_idx ) + 1 }/{ len( inputs_lst ) * len( inputs_chunk ) }, loss: { np.round(loss, 2) }, error: { np.round(100 * err, 2) } cm ' )
-
+                    
             if save:
 
                 # Save checkpoint

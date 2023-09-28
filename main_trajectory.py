@@ -149,11 +149,11 @@ if __name__ == '__main__':
     # where am i?
     PATH = os.getcwd() + '/'
 
-    #input_file = PATH + 'experiments/01_square.json'
+    input_file = PATH + 'experiments/01_square.json'
     #input_file = PATH + 'experiments/02_hall_square.json'
     #input_file = PATH + 'experiments/03_pentagon.json'
     #input_file = PATH + 'experiments/04_triangle.json'
-    input_file = PATH + 'experiments/05_circle.json'
+    #input_file = PATH + 'experiments/05_circle.json'
 
     print(f'PATH: {PATH}')
     print(f'experiment: {input_file}')
@@ -200,4 +200,4 @@ if __name__ == '__main__':
 
     # trajectory
     trajectory = TrajectoryStatic( options, trajectory_generator, polygon )
-    trajectory.trajectory_iterator( n_epochs=options.n_epochs, n_steps=options.n_steps )
+    trajectory.trajectory_iterator( n_chunks=options.n_chunks, n_steps=options.n_steps )
