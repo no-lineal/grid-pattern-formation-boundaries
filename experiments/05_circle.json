@@ -24,7 +24,7 @@
         "activation": "relu",
         "learning_rate": 1e-4,
         "n_steps": 1000,
-        "n_chunks": 100,
+        "n_chunks": 10,
         "n_epochs": 100
     }
 }
