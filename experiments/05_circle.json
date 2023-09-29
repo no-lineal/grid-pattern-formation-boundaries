@@ -1,7 +1,7 @@
 {
     "shape": "circle",
     "directories": {
-        "model_name": "circle_100_10000/"
+        "model_name": "circle_100000/"
     }, 
     "place_cell_parameters": {
         "Np": 512, 
