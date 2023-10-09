@@ -25,6 +25,7 @@ class PlaceCells(object):
         self.polygon = polygon
 
         # random seed
+        # need the same place cells to reproduce the exact same results
         np.random.seed( 0 )
 
         if options.precomputed_place_cells:

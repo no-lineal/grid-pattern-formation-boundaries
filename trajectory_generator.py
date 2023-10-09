@@ -262,6 +262,9 @@ class TrajectoryGenerator(object):
         For testing performance, returns a batch of smample trajectories
         """
 
+        # set seed for random trajectories
+        np.random.seed()
+
         if not batch_size:
 
             batch_size = self.options.batch_size
