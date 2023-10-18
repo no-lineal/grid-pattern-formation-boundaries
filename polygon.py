@@ -2,7 +2,12 @@ import numpy as np
 import math
 from shapely.geometry import Polygon, Point, LineString
 
-def square( box_width, box_height ):
+def square( area, factor = 1 ):
+
+    area = area * factor
+
+    box_width = np.sqrt( area )
+    box_height = box_width
 
     square = Polygon(
         [ 
@@ -15,7 +20,10 @@ def square( box_width, box_height ):
     
     return square
 
-def triangle( area, height ):
+def triangle( area, factor = 1 ):
+
+    area = area * factor
+    height = np.sqrt( area )
 
     base = ( 2 * area ) / height
 
@@ -42,7 +50,12 @@ def trapezoid( box_width, box_height ):
     
     return trapezoid
 
-def hall_square( box_width, box_height ):
+def hall_square( area, factor = 1 ):
+
+    area = area * factor
+
+    box_width = np.sqrt( area )
+    box_height = box_width
 
     sh = np.round( box_width / 3, 2 )
     sw = (box_width - sh) / 2
@@ -69,7 +82,11 @@ def hall_square( box_width, box_height ):
     
     return hall_square
 
-def circle( radius ):
+def circle( area, factor ):
+
+    area = area * factor
+
+    radius = np.sqrt( area / np.pi )
 
     center = Point(0, 0)
 
@@ -77,7 +94,9 @@ def circle( radius ):
 
     return circle
 
-def pentagon( area ):
+def pentagon( area, factor = 1 ):
+
+    area = area * factor
     
     side_length = np.sqrt( (4 * area ) / ( np.sqrt( 5 * ( 5 + 2 * (np.sqrt(5)) ) ) ) )
 
@@ -97,31 +116,23 @@ def get_polygon( polygon ):
 
     if polygon == 'square':
 
-        return square( 2.2, 2.2 )
-    
-    elif polygon == 'rectangle':
-
-        return square( 4.4, 1.1 )
-    
-    elif polygon == 'triangle':
-
-        return triangle( (2.2 ** 2), 2.2 )
-    
-    elif polygon == 'trapezoid':
-
-        return trapezoid( 2.2, 2.2 )
+        return square( (2.2)**2, 2 )
     
     elif polygon == 'hall_square':
 
-        return hall_square( 2.2, 2.2 )
-    
-    elif polygon == 'circle':
-
-        return circle( np.sqrt( 4.84 / np.pi ) )
+        return hall_square( (2.2)**2, 2 )
     
     elif polygon == 'pentagon':
 
-        return pentagon( 2.2 ** 2 )
+        return pentagon( 2.2**2, 2 )
+    
+    elif polygon == 'triangle':
+
+        return triangle( (2.2 ** 2), 2 )
+    
+    elif polygon == 'circle':
+
+        return circle( 2**2, 2 )
     
     else:
 

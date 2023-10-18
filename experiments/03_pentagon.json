@@ -1,10 +1,10 @@
 {
     "shape": "pentagon",
     "directories": {
-        "model_name": "pentagon_10000_100/"
+        "model_name": "pentagon_f2_10000_100/"
     }, 
     "place_cell_parameters": {
-        "Np": 512, 
+        "Np": 1024, 
         "sigma": 0.12, 
         "surround_scale": 2.0, 
         "periodic": false, 

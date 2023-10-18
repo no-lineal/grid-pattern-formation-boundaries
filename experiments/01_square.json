@@ -1,15 +1,15 @@
 {
     "shape": "square",
     "directories": {
-        "model_name": "square_precomputed_10000_100_lstm/"
+        "model_name": "square_precomputed_f2_10000_100/"
     },
     "place_cell_parameters": {
-        "Np": 512,
+        "Np": 1024,
         "sigma": 0.12,
         "surround_scale": 2.0,
         "periodic": false,
         "DoG": true,
-        "precomputed_place_cells": true
+        "precomputed_place_cells": false
     },
     "trajectory_parameters": {
         "sequence_length": 50,
@@ -19,7 +19,7 @@
         "Ng": 4096
     },
     "model_parameters": {
-        "RNN_type": "LSTM",
+        "RNN_type": "RNN",
         "weight_decay": 1e-4,
         "activation": "relu",
         "learning_rate": 1e-4,
