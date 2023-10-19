@@ -116,23 +116,23 @@ def get_polygon( polygon ):
 
     if polygon == 'square':
 
-        return square( (2.2)**2, 2 )
+        return square( (2.2)**2, 1 )
     
     elif polygon == 'hall_square':
 
-        return hall_square( (2.2)**2, 2 )
+        return hall_square( (2.2)**2, 1 )
     
     elif polygon == 'pentagon':
 
-        return pentagon( 2.2**2, 2 )
+        return pentagon( 2.2**2, 1 )
     
     elif polygon == 'triangle':
 
-        return triangle( (2.2 ** 2), 2 )
+        return triangle( (2.2 ** 2), 1 )
     
     elif polygon == 'circle':
 
-        return circle( 2**2, 2 )
+        return circle( 2**2, 1 )
     
     else:
 

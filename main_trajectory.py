@@ -5,7 +5,7 @@ from polygon import get_polygon
 from place_cells import PlaceCells
 from trajectory_generator import TrajectoryGenerator
 
-from model import RNN
+from model import RNN, LSTM
 
 from trajectory_batch import TrajectoryStatic
 
@@ -193,8 +193,19 @@ if __name__ == '__main__':
 
     # model
 
-    model = RNN( options, place_cells )
-    model = model.to( options.device )
+    if options.RNN_type == 'RNN':
+
+        model = RNN( options, place_cells )
+        model = model.to( options.device )
+
+    elif options.RNN_type == 'LSTM':
+
+        model = LSTM( options, place_cells )
+        model = model.to( options.device )
+
+    else:
+
+        raise ValueError('RNN_type must be RNN or LSTM')
 
     print( model )
 
