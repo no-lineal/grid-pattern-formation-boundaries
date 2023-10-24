@@ -1,10 +1,11 @@
 {
     "shape": "pentagon",
+    "factor": 2,
     "directories": {
-        "model_name": "pentagon_f2_10000_100/"
+        "model_name": "pentagon_f1_lstm_10000_100/"
     }, 
     "place_cell_parameters": {
-        "Np": 1024, 
+        "Np": 512, 
         "sigma": 0.12, 
         "surround_scale": 2.0, 
         "periodic": false, 
@@ -19,12 +20,12 @@
         "Ng": 4096
     },
     "model_parameters": {
-        "RNN_type": "RNN",
+        "RNN_type": "LSTM",
         "weight_decay": 1e-4,
         "activation": "relu",
         "learning_rate": 1e-4,
-        "n_steps": 1000,
-        "n_chunks": 10,
+        "n_steps": 250,
+        "n_chunks": 40,
         "n_epochs": 100
     }
 }
